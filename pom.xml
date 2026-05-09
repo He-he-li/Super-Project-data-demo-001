@@ -1,0 +1,262 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <!-- 继承 Spring Boot 父项目 -->
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>4.0.3</version>
+        <relativePath/> <!-- lookup parent from repository -->
+    </parent>
+
+    <!-- 项目基本信息 -->
+    <groupId>com.example</groupId>
+    <artifactId>data_demo_002</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <name>data_demo_002</name>
+    <description>data_demo_002</description>
+
+    <!-- 开源协议信息 -->
+    <url/>
+    <licenses>
+        <license/>
+    </licenses>
+
+    <!-- 开发者信息 -->
+    <developers>
+        <developer/>
+    </developers>
+
+    <!-- 版本控制信息 -->
+    <scm>
+        <connection/>
+        <developerConnection/>
+        <tag/>
+        <url/>
+    </scm>
+
+    <!-- 项目属性配置 -->
+    <properties>
+        <java.version>17</java.version>
+        <spring-boot.version>4.0.3</spring-boot.version>
+    </properties>
+
+    <!-- 依赖管理（添加此部分） -->
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-dependencies</artifactId>
+                <version>${spring-boot.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <!-- 依赖配置 -->
+    <dependencies>
+        <!-- Spring Boot Web -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
+        <!-- Spring Boot AOP（新增） -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-aop</artifactId>
+            <version>3.2.0</version>
+        </dependency>
+
+        <!-- 2. PostgreSQL 数据库驱动 -->
+        <!-- 用于连接 PostgreSQL 数据库，运行时依赖 -->
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+
+        <!-- 3. MyBatis-Plus ORM 框架 -->
+        <!-- 简化数据库操作，提供强大的 CRUD 功能和分页支持 -->
+        <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus-spring-boot3-starter</artifactId>
+            <version>3.5.5</version>
+        </dependency>
+
+        <!-- MyBatis-Plus 代码生成器 -->
+        <!-- 开发辅助工具，可根据数据库表结构自动生成实体类、Mapper 等代码 -->
+        <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus-generator</artifactId>
+            <version>3.5.5</version>
+        </dependency>
+        <!-- FreeMarker 模板引擎 -->
+        <!-- 配合代码生成器使用的模板引擎 -->
+        <dependency>
+            <groupId>org.freemarker</groupId>
+            <artifactId>freemarker</artifactId>
+        </dependency>
+
+        <!-- 4. Knife4j API 文档工具 -->
+        <!-- SpringDoc OpenAPI (原生支持 Spring Boot 4) -->
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+            <version>2.8.8</version> <!-- 推荐使用最新版，确保兼容 Spring Boot 4 -->
+        </dependency>
+
+
+
+        <!-- 5. spring-dotenv -->
+        <!-- 支持读取 .env 文件中的环境变量配置 -->
+        <dependency>
+            <groupId>me.paulschwarz</groupId>
+            <artifactId>spring-dotenv</artifactId>
+            <version>3.0.0</version>
+        </dependency>
+        <!-- 6. Spring Security -->
+        <!-- 提供安全认证功能，如用户登录、权限控制等 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+        </dependency>
+
+
+        <!-- JWT 依赖 (JJWT 0.12.x) -->
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-api</artifactId>
+            <version>0.12.5</version>
+        </dependency>
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-impl</artifactId>
+            <version>0.12.5</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-jackson</artifactId>
+            <version>0.12.5</version>
+            <scope>runtime</scope>
+        </dependency>
+
+
+        <!-- 邮件发送依赖 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-mail</artifactId>
+        </dependency>
+
+        <!-- Thymeleaf 模板 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-thymeleaf</artifactId>
+        </dependency>
+
+        <!-- Redis -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-redis</artifactId>
+        </dependency>
+
+        <!-- Netty (物联网必备) -->
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-all</artifactId>
+            <version>4.1.100.Final</version>
+        </dependency>
+
+        <!--Hutool 是一个轻量级、功能全面的 Java 工具类库。
+            - hutool-core       ：核心工具（字符串、日期、集合、反射、异常等）
+            - hutool-http       ：简化 HTTP 客户端请求（GET/POST 等）
+            - hutool-json        ：轻量级 JSON 解析与构建（无需 Jackson/Fastjson 复杂配置）
+            - hutool-net         ：TCP/UDP 客户端与服务端封装（⭐ 对设备通信极有帮助）
+            - hutool-crypto      ：支持 MD5、SHA、AES、RSA、SM4 等加密算法
+            - hutool-db          ：简化 JDBC 操作，支持连接池
+            - hutool-poi         ：读写 Excel 文件（.xls/.xlsx）
+            - hutool-cache       ：本地缓存或 Redis 封装
+            - hutool-log         ：日志门面，适配主流日志框架
+            - hutool-extra       ：扩展功能（邮件、二维码、FTP、Servlet 工具等）
+            -->
+        <dependency>
+            <groupId>cn.hutool</groupId>
+            <artifactId>hutool-all</artifactId>
+            <version>5.8.25</version>
+        </dependency>
+
+
+        <!-- Spring Boot DevTools -->
+        <!-- 开发环境热部署工具，提高开发效率 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-devtools</artifactId>
+            <scope>runtime</scope>
+            <optional>true</optional>
+        </dependency>
+
+        <!-- Lombok -->
+        <!-- 通过注解简化实体类代码，减少样板代码（getter/setter/构造函数等） -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <optional>true</optional>
+        </dependency>
+
+        <!-- Spring Boot Web MVC 测试依赖 -->
+        <!-- 提供 Web 层的单元测试支持 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-webmvc-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Spring Boot Actuator -->
+        <!-- 提供生产级的应用监控和管理功能 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+    </dependencies>
+
+    <!-- 构建配置 -->
+    <build>
+        <plugins>
+            <!-- Maven 编译插件配置 -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <annotationProcessorPaths>
+                        <!-- 配置 Lombok 注解处理器 -->
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                        </path>
+                    </annotationProcessorPaths>
+                </configuration>
+            </plugin>
+
+            <!-- Spring Boot Maven 插件 -->
+            <!-- 支持打包成可执行 JAR 文件 -->
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <!-- 排除 Lombok，运行时不需要 -->
+                        <exclude>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                        </exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

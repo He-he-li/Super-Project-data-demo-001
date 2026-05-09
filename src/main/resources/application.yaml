@@ -1,0 +1,181 @@
+# ===========================================
+# Spring Boot 应用配置文件
+# ===========================================
+
+# Spring 配置
+spring:
+  # 应用基本配置
+  application:
+    # 应用名称，用于服务注册、日志标识等
+    name: data_demo_002
+  
+  # 数据库配置
+  datasource:
+    # 使用环境变量或默认值配置数据库连接
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:data_demo_002_java}
+    username: ${DB_USER:postgres}
+    password: ${DB_PASSWORD:postgres123}
+    driver-class-name: org.postgresql.Driver
+    
+    # HikariCP 连接池配置
+    hikari:
+      maximum-pool-size: 10        # 最大连接数
+      minimum-idle: 5              # 最小空闲连接数
+      idle-timeout: 300000         # 空闲超时时间（毫秒）
+      connection-timeout: 20000    # 连接超时时间（毫秒）
+      max-lifetime: 600000         # 连接最大生命周期（毫秒）
+
+  # Jackson 序列化配置（处理 JSON 时间格式）
+  jackson:
+    time-zone: GMT+8              # 设置时区为东八区（北京时间）
+    date-format: yyyy-MM-dd HH:mm:ss  # 日期时间格式化模式
+
+  # 字符编码配置（解决中文乱码）
+  servlet:
+    encoding:
+      charset: UTF-8
+      force: true
+      enabled: true
+
+  #邮箱配置
+  mail:
+    host: smtp.qq.com
+    username: ${EMAIL_USER:<EMAIL>}                   #QQ邮箱
+    password: ${EMAIL_USER_PASSWORD:<PASSWORD>}       #授权码
+    port: 465
+    protocol: smtps
+    properties:
+      mail:
+        smtp:
+          auth: true
+          ssl:
+            enable: true
+        debug: true  # 开启调试日志\
+
+
+
+
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      password: MyRedis@2024
+      # 可选：配置数据库索引
+      # database: 0
+      # 连接池配置
+      lettuce:
+        pool:
+          max-active: 8
+          max-idle: 8
+          min-idle: 0
+
+
+# 服务器端口配置
+server:
+  port: 8081                      # 应用启动端口
+  # 强制使用 UTF-8 编码
+  servlet:
+    encoding:
+      charset: UTF-8
+      force: true
+  
+# MyBatis-Plus ORM 框架配置
+mybatis-plus:
+  # MyBatis 原生配置项
+  configuration:
+    map-underscore-to-camel-case: true  # 开启数据库下划线命名到 Java 驼峰命名的自动转换
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl  # 在控制台打印 SQL 语句，便于调试
+  
+  # 全局配置
+  global-config:
+    db-config:
+      # 主键生成策略：assign_id 表示使用雪花算法生成唯一 ID
+      id-type: assign_id
+      # 逻辑删除字段名称
+      logic-delete-field: deleted
+      # 逻辑删除的值（1 表示已删除）
+      logic-delete-value: 1
+      # 未删除的值（0 表示正常状态）
+      logic-not-delete-value: 0
+  
+  # Mapper 扫描配置
+  mapper-locations: classpath*:/generator/mapper/**/*.xml
+  type-aliases-package: com.example.data_demo_002.common.base.domain
+    # 接口操作按字母顺序排序
+
+
+
+springdoc:
+  # 启用 API 文档
+  api-docs:
+    enabled: true
+    path: /v3/api-docs
+
+  # 启用 Swagger UI 界面
+  swagger-ui:
+    enabled: true
+    # 访问路径：http://localhost:8081/swagger-ui.html
+    path: /swagger-ui.html
+    # 可选：配置页面标题
+    title: "数据演示系统 API 文档"
+    # 可选：默认展开所有接口
+    operations-sorter: alpha
+    tags-sorter: alpha
+    # 关键：如果之前有 urls 配置导致问题，可以先注释掉，让它自动发现
+    # urls:
+    #   - name: "default"
+    #     url: "/v3/api-docs"
+
+  # 可选：包扫描配置（如果默认扫描不到 Controller，请取消注释并修改包名）
+  # packages-to-scan: com.example.data_demo_002.controller
+
+  # 可选：显示 Actuator 端点（通常不需要）
+  show-actuator: false
+
+
+
+
+
+
+
+
+
+
+
+
+# 日志配置
+logging:
+  level:
+    # MyBatis-Plus 日志级别：DEBUG
+    # 作用：在控制台打印 SQL 语句、参数和执行时间，便于调试数据库操作
+    org.mybatis: ERROR
+    
+    # Spring Bean 工厂日志级别：DEBUG
+    # 作用：打印 Bean 的创建、依赖注入等详细信息，便于排查启动问题
+    org.springframework.beans.factory: ERROR
+
+
+
+
+
+
+
+
+
+
+
+
+jwt:
+  # 密钥
+  secret: "MySuperSecretKeyForJwtTokenGeneration2026NeverShareThisKey1234567890"
+  # Access Token 有效期 (单位：毫秒) - 30 分钟
+  access-expiration: 1800000
+  # Refresh Token 有效期 (单位：毫秒) - 7 天
+  refresh-expiration: 604800000
+  # 【废弃】旧的总有效期配置
+  # expiration: 72000000
+  # 【废弃】旧的续期阈值配置
+  # renew-threshold: 3600000
+  # 令牌前缀相关
+  header: "Authorization"
+  prefix: "Bearer "
