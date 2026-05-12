@@ -2,7 +2,6 @@ package com.example.data_demo_002.modules.user.dao;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
@@ -14,9 +13,10 @@ import java.util.List;
  * 用户数据传输对象（Data Transfer Object）
  * 
  * 用于接收前端传递的用户相关请求数据，包含校验规则
+ * 注意：id字段仅用于服务端内部传输，不返回给客户端
  * 
  * @author data_demo_002
- * @version 1.0
+ * @version 2.0
  */
 @Data
 public class UserDTO implements Serializable {
@@ -25,12 +25,12 @@ public class UserDTO implements Serializable {
 
     /**
      * 用户 ID（雪花算法生成）
+     * 仅用于服务端内部处理，不对外暴露
      */
-    @NotNull(message = "用户 ID 不能为空", groups = UpdateGroup.class)
     private Long id;
 
     /**
-     * 用户名
+     * 用户名（对外唯一标识）
      */
     @NotBlank(message = "用户名不能为空", groups = CreateGroup.class)
     @Size(min = 2, max = 20, message = "用户名长度必须在 2-20 个字符之间", groups = {CreateGroup.class, UpdateGroup.class})
@@ -62,7 +62,6 @@ public class UserDTO implements Serializable {
      * 0: 正常
      * 1: 禁用
      */
-    @NotNull(message = "用户状态不能为空", groups = CreateGroup.class)
     @Pattern(regexp = "^[01]$", message = "用户状态只能是 0 或 1", groups = {CreateGroup.class, UpdateGroup.class})
     private Integer status=0;
 

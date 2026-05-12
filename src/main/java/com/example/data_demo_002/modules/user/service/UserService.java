@@ -95,7 +95,6 @@ public class UserService {
         );
 
         UserLoginVO loginVO = new UserLoginVO();
-        loginVO.setId(user.getId());
         loginVO.setUsername(user.getUsername());
         loginVO.setEmail(user.getEmail());
         loginVO.setPhone(user.getPhone());
@@ -115,19 +114,20 @@ public class UserService {
 
     /**
      * [PC-001/UM-002] 获取用户详情（含角色列表）
-     * 功能：根据用户ID查询详细信息，包含角色列表
-     * 入参：userId
-     * 返回：UserVO(含角色列表)
+     * 功能：根据username查询详细信息，包含角色列表
+     * 入参：username
+     * 返回：UserVO(含角色列表，不含内部ID)
      * 影响：无
      */
-    public UserVO getUserDetail(Long userId) {
-        SysUser user = sysUserService.getById(userId);
+    public UserVO getUserDetail(String username) {
+        SysUser user = sysUserService.getOne(new LambdaQueryWrapper<SysUser>()
+                .eq(SysUser::getUsername, username));
         if (user == null) {
             throw new BusinessException("用户不存在");
         }
 
         List<SysUserRole> relations = sysUserRoleService.list(
-                new LambdaQueryWrapper<SysUserRole>().eq(SysUserRole::getUserId, userId)
+                new LambdaQueryWrapper<SysUserRole>().eq(SysUserRole::getUserId, user.getId())
         );
 
         List<Long> roleIds = relations.stream().map(SysUserRole::getRoleId).collect(Collectors.toList());
@@ -140,11 +140,11 @@ public class UserService {
         }
 
         UserVO vo = new UserVO();
-        vo.setId(user.getId());
         vo.setUsername(user.getUsername());
         vo.setEmail(user.getEmail());
         vo.setPhone(user.getPhone());
         vo.setStatus(user.getStatus());
+        vo.setStatusDesc(user.getStatus() == 0 ? "正常" : "禁用");
         vo.setCreateTime(user.getCreateTime());
         vo.setUpdateTime(user.getUpdateTime());
         vo.setRoleIds(roleIds);
@@ -223,11 +223,11 @@ public class UserService {
         Map<Long, String> finalRoleNameMap = roleNameMap;
         List<UserVO> userVOList = users.stream().map(user -> {
             UserVO vo = new UserVO();
-            vo.setId(user.getId());
             vo.setUsername(user.getUsername());
             vo.setEmail(user.getEmail());
             vo.setPhone(user.getPhone());
             vo.setStatus(user.getStatus());
+            vo.setStatusDesc(user.getStatus() == 0 ? "正常" : "禁用");
             vo.setCreateTime(user.getCreateTime());
             vo.setUpdateTime(user.getUpdateTime());
             
@@ -290,7 +290,6 @@ public class UserService {
         sysUserRoleService.saveBatch(relations);
 
         UserDTO result = new UserDTO();
-        result.setId(user.getId());
         result.setUsername(user.getUsername());
         result.setEmail(user.getEmail());
         result.setPhone(user.getPhone());
@@ -303,15 +302,21 @@ public class UserService {
     /**
      * [PC-002] 修改当前登录用户的基本信息
      * 功能：修改当前登录用户的基本信息（用户名、邮箱、手机）
-     * 入参：userId, UserDTO(username, email, phone)
-     * 返回：UserVO(更新后的用户信息)
+     * 入参：username, UserDTO(username, email, phone)
+     * 返回：UserVO(更新后的用户信息，不含内部ID)
      * 影响：更新sys_user表的username/email/phone/update_time
      */
-    public UserVO updateUserMe(Long userId, UserDTO dto) {
-        validateUserUniqueness(userId, dto.getUsername(), dto.getEmail(), dto.getPhone());
+    public UserVO updateUserMe(String username, UserDTO dto) {
+        SysUser currentUser = sysUserService.getOne(new LambdaQueryWrapper<SysUser>()
+                .eq(SysUser::getUsername, username));
+        if (currentUser == null) {
+            throw new BusinessException("用户不存在");
+        }
+        
+        validateUserUniqueness(currentUser.getId(), dto.getUsername(), dto.getEmail(), dto.getPhone());
         
         SysUser user = new SysUser();
-        user.setId(userId);
+        user.setId(currentUser.getId());
         user.setUsername(dto.getUsername());
         user.setEmail(dto.getEmail());
         user.setPhone(dto.getPhone());
@@ -323,11 +328,11 @@ public class UserService {
         }
 
         UserVO vo = new UserVO();
-        vo.setId(user.getId());
         vo.setUsername(user.getUsername());
         vo.setEmail(user.getEmail());
         vo.setPhone(user.getPhone());
-        vo.setStatus(user.getStatus());
+        vo.setStatus(currentUser.getStatus());
+        vo.setStatusDesc(currentUser.getStatus() == 0 ? "正常" : "禁用");
         vo.setUpdateTime(user.getUpdateTime());
         
         return vo;
@@ -336,22 +341,24 @@ public class UserService {
     /**
      * [UM-003] 管理员修改用户基本信息
      * 功能：管理员修改用户的基本信息和状态
-     * 入参：userId, UserDTO(username, email, phone, status)
-     * 返回：UserVO(更新后的用户信息)
+     * 入参：username, UserDTO(username, email, phone, status)
+     * 返回：UserVO(更新后的用户信息，不含内部ID)
      * 影响：更新sys_user表的username/email/phone/status/update_time
      */
-    public UserVO updateUser(Long userId, UserDTO dto) {
-        SysUser user = sysUserService.getById(userId);
+    public UserVO updateUser(String username, UserDTO dto) {
+        SysUser user = sysUserService.getOne(new LambdaQueryWrapper<SysUser>()
+                .eq(SysUser::getUsername, username));
         if (user == null) {
             throw new BusinessException("用户不存在");
         }
         
-        validateUserUniqueness(userId, dto.getUsername(), dto.getEmail(), dto.getPhone());
+        validateUserUniqueness(user.getId(), dto.getUsername(), dto.getEmail(), dto.getPhone());
         
         user.setUsername(dto.getUsername());
         user.setEmail(dto.getEmail());
         user.setPhone(dto.getPhone());
         user.setStatus(dto.getStatus());
+        System.out.println(dto.getStatus());
         user.setUpdateTime(new Date());
         
         boolean success = sysUserService.updateById(user);
@@ -360,10 +367,11 @@ public class UserService {
         }
         
         UserVO vo = new UserVO();
-        vo.setId(user.getId());
         vo.setUsername(user.getUsername());
         vo.setEmail(user.getEmail());
         vo.setPhone(user.getPhone());
+        vo.setStatus(user.getStatus());
+        vo.setStatusDesc(user.getStatus() == 0 ? "正常" : "禁用");
         vo.setUpdateTime(user.getUpdateTime());
         
         return vo;
@@ -424,12 +432,13 @@ public class UserService {
     /**
      * [PC-003] 修改当前用户密码（需验证旧密码）
      * 功能：修改当前登录用户的密码，需验证旧密码
-     * 入参：userId, oldPassword, newPassword
+     * 入参：username, oldPassword, newPassword
      * 返回：无
      * 影响：更新sys_user表的password，删除所有Refresh Token
      */
-    public void updatePassword(Long userId, String oldPassword, String newPassword) {
-        SysUser user = sysUserService.getById(userId);
+    public void updatePassword(String username, String oldPassword, String newPassword) {
+        SysUser user = sysUserService.getOne(new LambdaQueryWrapper<SysUser>()
+                .eq(SysUser::getUsername, username));
         if (user == null) {
             throw new BusinessException("用户不存在");
         }
@@ -438,18 +447,69 @@ public class UserService {
             throw new BusinessException("旧密码错误");
         }
         
-        changePassword(userId, newPassword);
+        changePassword(user.getId(), newPassword);
     }
 
     /**
      * [UM-007] 管理员重置密码
      * 功能：管理员直接重置用户密码，无需旧密码
-     * 入参：userId, newPassword
+     * 入参：username, newPassword
      * 返回：无
      * 影响：更新sys_user表的password，删除所有Refresh Token
      */
-    public void resetPassword(Long userId, String newPassword) {
-        changePassword(userId, newPassword);
+    public void resetPassword(String username, String newPassword) {
+        SysUser user = sysUserService.getOne(new LambdaQueryWrapper<SysUser>()
+                .eq(SysUser::getUsername, username));
+        if (user == null) {
+            throw new BusinessException("用户不存在");
+        }
+        changePassword(user.getId(), newPassword);
+    }
+
+    /**
+     * [UM-004] 删除用户（物理删除）
+     * 功能：物理删除用户，同时删除角色关联和Token
+     * 入参：userId
+     * 返回：无
+     * 影响：删除sys_user表记录，删除sys_user_role表记录，删除Redis中的Refresh Token
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public void deleteUserByUserId(Long userId) {
+        SysUser user = sysUserService.getById(userId);
+        if (user == null) {
+            throw new BusinessException("用户不存在");
+        }
+
+        sysUserRoleService.remove(new LambdaQueryWrapper<SysUserRole>()
+                .eq(SysUserRole::getUserId, userId));
+        log.info("Deleted role associations for user: {}", userId);
+
+        refreshTokenService.deleteAllUserRefreshTokens(userId);
+        log.info("Deleted all refresh tokens for user: {}", userId);
+
+        boolean success = sysUserService.removeById(userId);
+        if (!success) {
+            throw new BusinessException("删除用户失败");
+        }
+        
+        log.info("Successfully deleted user: {}", userId);
+    }
+
+    /**
+     * [UM-004] 删除用户（根据username）
+     * 功能：物理删除用户，同时删除角色关联和Token
+     * 入参：username
+     * 返回：无
+     * 影响：删除sys_user表记录，删除sys_user_role表记录，删除Redis中的Refresh Token
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public void deleteUserByUsername(String username) {
+        SysUser user = sysUserService.getOne(new LambdaQueryWrapper<SysUser>()
+                .eq(SysUser::getUsername, username));
+        if (user == null) {
+            throw new BusinessException("用户不存在");
+        }
+        deleteUserByUserId(user.getId());
     }
 
     /**
@@ -481,6 +541,22 @@ public class UserService {
     }
 
     /**
+     * [UM-005] 禁用/启用用户（根据username）
+     * 功能：修改用户状态（0-正常 1-禁用）
+     * 入参：username, status
+     * 返回：无
+     * 影响：更新sys_user表的status和update_time
+     */
+    public void updateUserStatusByUsername(String username, Integer status) {
+        SysUser user = sysUserService.getOne(new LambdaQueryWrapper<SysUser>()
+                .eq(SysUser::getUsername, username));
+        if (user == null) {
+            throw new BusinessException("用户不存在");
+        }
+        updateUserStatus(user.getId(), status);
+    }
+
+    /**
      * [UM-006] 强制下线
      * 功能：清除用户所有Refresh Token，强制重新登录
      * 入参：userId
@@ -490,6 +566,38 @@ public class UserService {
     public void forceLogout(Long userId) {
         refreshTokenService.deleteAllUserRefreshTokens(userId);
         log.info("User {} forced logout, all refresh tokens deleted", userId);
+    }
+
+    /**
+     * [UM-006] 强制下线（根据username）
+     * 功能：清除用户所有Refresh Token，强制重新登录
+     * 入参：username
+     * 返回：无
+     * 影响：删除Redis中该用户的所有Refresh Token
+     */
+    public void forceLogoutByUsername(String username) {
+        SysUser user = sysUserService.getOne(new LambdaQueryWrapper<SysUser>()
+                .eq(SysUser::getUsername, username));
+        if (user == null) {
+            throw new BusinessException("用户不存在");
+        }
+        forceLogout(user.getId());
+    }
+
+    /**
+     * [UM-007] 管理员重置密码（根据username）
+     * 功能：管理员直接重置用户密码，无需旧密码
+     * 入参：username, newPassword
+     * 返回：无
+     * 影响：更新sys_user表的password，删除所有Refresh Token
+     */
+    public void resetPasswordByUsername(String username, String newPassword) {
+        SysUser user = sysUserService.getOne(new LambdaQueryWrapper<SysUser>()
+                .eq(SysUser::getUsername, username));
+        if (user == null) {
+            throw new BusinessException("用户不存在");
+        }
+        changePassword(user.getId(), newPassword);
     }
 
     /**
@@ -517,6 +625,23 @@ public class UserService {
         }
         
         log.info("Roles assigned to user {}, count: {}", userId, newRoleIds != null ? newRoleIds.size() : 0);
+    }
+
+    /**
+     * [UM-008] 分配用户角色（根据username）
+     * 功能：给用户分配角色（全量替换模式）
+     * 入参：username, List<Long> roleIds
+     * 返回：无
+     * 影响：删除sys_user_role表旧记录，插入新记录
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public void assignRolesByUsername(String username, List<Long> roleIds) {
+        SysUser user = sysUserService.getOne(new LambdaQueryWrapper<SysUser>()
+                .eq(SysUser::getUsername, username));
+        if (user == null) {
+            throw new BusinessException("用户不存在");
+        }
+        assignRoles(user.getId(), roleIds);
     }
 
     // ==================== 【批量操作】 Batch Operations (BATCH) ====================
@@ -584,32 +709,4 @@ public class UserService {
 
     // ==================== 【删除操作】 Delete Operations ====================
 
-    /**
-     * [UM-004] 删除用户（物理删除）
-     * 功能：物理删除用户，同时删除角色关联和Token
-     * 入参：userId
-     * 返回：无
-     * 影响：删除sys_user表记录，删除sys_user_role表记录，删除Redis中的Refresh Token
-     */
-    @Transactional(rollbackFor = Exception.class)
-    public void deleteUserByUserId(Long userId) {
-        SysUser user = sysUserService.getById(userId);
-        if (user == null) {
-            throw new BusinessException("用户不存在");
-        }
-
-        sysUserRoleService.remove(new LambdaQueryWrapper<SysUserRole>()
-                .eq(SysUserRole::getUserId, userId));
-        log.info("Deleted role associations for user: {}", userId);
-
-        refreshTokenService.deleteAllUserRefreshTokens(userId);
-        log.info("Deleted all refresh tokens for user: {}", userId);
-
-        boolean success = sysUserService.removeById(userId);
-        if (!success) {
-            throw new BusinessException("删除用户失败");
-        }
-        
-        log.info("Successfully deleted user: {}", userId);
-    }
 }

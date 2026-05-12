@@ -35,12 +35,12 @@ public class PermissionController {
     @Operation(summary = "获取当前用户权限", description = "返回当前登录用户的所有权限编码")
     @GetMapping("/my-permissions")
     public Result<Map<String, Object>> getCurrentUserPermissions() {
-        Long userId = UserContext.getUserId();
+        String username = UserContext.getUsername();
 
-        List<String> permissions = permissionService.getUserPermissions(userId);
+        List<String> permissions = permissionService.getUserPermissionsByUsername(username);
 
         Map<String, Object> result = new HashMap<>();
-        result.put("userId", userId);
+        result.put("username", username);
         result.put("permissions", permissions);
 
         return Result.success(result);
@@ -49,8 +49,8 @@ public class PermissionController {
     @Operation(summary = "获取当前用户菜单", description = "返回当前登录用户的动态菜单树")
     @GetMapping("/my-menus")
     public Result<List<MenuVO>> getCurrentUserMenus() {
-        Long userId = UserContext.getUserId();
-        List<MenuVO> menus = permissionService.getUserMenus(userId);
+        String username = UserContext.getUsername();
+        List<MenuVO> menus = permissionService.getUserMenusByUsername(username);
         return Result.success(menus);
     }
 

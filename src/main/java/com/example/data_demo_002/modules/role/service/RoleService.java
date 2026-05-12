@@ -29,4 +29,8 @@ public interface RoleService {
     List<Long> getUserRoles(Long userId);
 
     void assignUserRoles(Long userId, List<Long> roleIds);
+
+    List<Long> getUserRolesByUsername(String username);
+
+    void assignUserRolesByUsername(String username, List<Long> roleIds);
 }

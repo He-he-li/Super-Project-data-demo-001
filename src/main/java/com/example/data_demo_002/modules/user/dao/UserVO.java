@@ -1,8 +1,6 @@
 package com.example.data_demo_002.modules.user.dao;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -12,10 +10,11 @@ import java.util.List;
 /**
  * 用户视图对象（View Object）
  * 
- * 用于向客户端展示用户信息，不包含敏感数据（如密码）
+ * 用于向客户端展示用户信息，不包含敏感数据（如密码、内部ID）
+ * 对外统一使用username作为用户标识
  * 
  * @author data_demo_002
- * @version 1.0
+ * @version 2.0
  */
 @Data
 public class UserVO implements Serializable {
@@ -23,14 +22,7 @@ public class UserVO implements Serializable {
     private static final long serialVersionUID = 1L;
 
     /**
-     * 用户 ID（雪花算法生成）
-     * 使用 JsonSerialize 避免前端精度丢失问题
-     */
-    @JsonSerialize(using = ToStringSerializer.class)
-    private Long id;
-
-    /**
-     * 用户名
+     * 用户名（唯一业务标识，对外暴露）
      */
     private String username;
 

@@ -105,20 +105,20 @@ public class RoleController {
     }
 
     @Operation(summary = "获取用户角色", description = "获取指定用户的角色ID列表")
-    @GetMapping("/user/{userId}")
+    @GetMapping("/user/{username}")
     @HasPermission("system:user:view")
-    public Result<List<Long>> getUserRoles(@PathVariable Long userId) {
-        List<Long> roleIds = roleService.getUserRoles(userId);
+    public Result<List<Long>> getUserRoles(@PathVariable String username) {
+        List<Long> roleIds = roleService.getUserRolesByUsername(username);
         return Result.success(roleIds);
     }
 
     @Operation(summary = "分配用户角色", description = "给用户分配角色（全量替换）")
-    @PutMapping("/user/{userId}")
+    @PutMapping("/user/{username}")
     @HasPermission("system:user:assign")
     public Result<Void> assignUserRoles(
-            @PathVariable Long userId,
+            @PathVariable String username,
             @RequestBody List<Long> roleIds) {
-        roleService.assignUserRoles(userId, roleIds);
+        roleService.assignUserRolesByUsername(username, roleIds);
         return Result.success(null, "角色分配成功");
     }
 }

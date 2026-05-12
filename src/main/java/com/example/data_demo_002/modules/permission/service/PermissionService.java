@@ -28,4 +28,8 @@ public interface PermissionService {
     void updatePermission(Long permissionId, PermissionDTO dto);
 
     void deletePermission(Long permissionId);
+
+    List<String> getUserPermissionsByUsername(String username);
+
+    List<MenuVO> getUserMenusByUsername(String username);
 }

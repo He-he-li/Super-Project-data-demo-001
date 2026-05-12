@@ -1,5 +1,9 @@
 package com.example.data_demo_002.modules.role.service.impl;
 
+import com.example.data_demo_002.common.base.domain.SysUser;
+import com.example.data_demo_002.common.base.service.SysUserService;
+
+
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -30,6 +34,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class RoleServiceImpl implements RoleService {
 
+    private final SysUserService sysUserService;
     private final SysRoleService sysRoleService;
     private final SysRoleMapper sysRoleMapper;
     private final SysRolePermissionMapper rolePermissionMapper;
@@ -290,5 +295,26 @@ public class RoleServiceImpl implements RoleService {
 
         log.info("用户 {} 角色分配完成，共 {} 个角色", userId,
                 roleIds != null ? roleIds.size() : 0);
+    }
+
+    @Override
+    public List<Long> getUserRolesByUsername(String username) {
+        SysUser user = sysUserService.getOne(new LambdaQueryWrapper<SysUser>()
+                .eq(SysUser::getUsername, username));
+        if (user == null) {
+            throw new BusinessException("用户不存在");
+        }
+        return getUserRoles(user.getId());
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void assignUserRolesByUsername(String username, List<Long> roleIds) {
+        SysUser user = sysUserService.getOne(new LambdaQueryWrapper<SysUser>()
+                .eq(SysUser::getUsername, username));
+        if (user == null) {
+            throw new BusinessException("用户不存在");
+        }
+        assignUserRoles(user.getId(), roleIds);
     }
 }

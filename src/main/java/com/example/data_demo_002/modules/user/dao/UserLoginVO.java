@@ -5,17 +5,13 @@ import lombok.Data;
 /**
  * 用户登录响应对象
  * 包含用户基本信息和 Token 信息
+ * 注意：不返回内部userId，使用username作为唯一标识
  */
 @Data
 public class UserLoginVO {
 
     /**
-     * 用户 ID
-     */
-    private Long id;
-
-    /**
-     * 用户名
+     * 用户名（唯一业务标识）
      */
     private String username;
 

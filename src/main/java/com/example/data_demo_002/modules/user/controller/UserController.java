@@ -4,10 +4,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.example.data_demo_002.common.result.Result;
 import com.example.data_demo_002.common.util.permissionUtil.HasPermission;
 import com.example.data_demo_002.common.util.Jwt.UserContext;
-import com.example.data_demo_002.modules.user.dao.BatchAssignRolesRequest;
-import com.example.data_demo_002.modules.user.dao.UserDTO;
-import com.example.data_demo_002.modules.user.dao.UserLoginVO;
-import com.example.data_demo_002.modules.user.dao.UserVO;
+import com.example.data_demo_002.modules.user.dao.*;
 import com.example.data_demo_002.modules.user.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -59,7 +56,8 @@ public class UserController {
     @Tag(name = "🔐 认证中心")
     @Operation(summary = "用户登录", description = "验证用户名密码，返回用户信息和双Token（Access+Refresh）")
     @PostMapping("/login")
-    public Result<UserLoginVO> login(@Valid @RequestBody UserDTO dto) {
+    public Result<UserLoginVO> login(@Valid @RequestBody LoginDTO dto) {
+        System.out.println("UserController.login:"+dto);
         UserLoginVO response = userService.login(dto.getUsername(), dto.getPassword());
         return Result.success(response);
     }
@@ -68,19 +66,19 @@ public class UserController {
     
     /**
      * [PC-001] 获取当前用户信息
-     * 功能：从Token中获取userId，查询当前登录用户的详细信息
+     * 功能：从Token中获取username，查询当前登录用户的详细信息
      * 权限：system:user:view
-     * 入参：无（从Token获取userId）
-     * 返回：UserVO(含角色列表)
+     * 入参：无（从Token获取username）
+     * 返回：UserVO(含角色列表，不含内部ID)
      * 影响：无
      */
     @Tag(name = "👤 个人中心")
-    @Operation(summary = "获取当前用户信息", description = "从Token中获取userId，查询当前登录用户的详细信息")
+    @Operation(summary = "获取当前用户信息", description = "从Token中获取username，查询当前登录用户的详细信息")
     @GetMapping("/me")
     @SecurityRequirement(name = "bearerAuth")
     @HasPermission("system:user:view")
     public Result<UserVO> getMe() {
-        UserVO vo = userService.getUserDetail(UserContext.getUserId());
+        UserVO vo = userService.getUserDetail(UserContext.getUsername());
         return Result.success(vo);
     }
 
@@ -89,7 +87,7 @@ public class UserController {
      * 功能：修改当前登录用户的基本信息（用户名、邮箱、手机）
      * 权限：system:user:edit
      * 入参：UserDTO(username, email, phone)
-     * 返回：UserVO(更新后的用户信息)
+     * 返回：UserVO(更新后的用户信息，不含内部ID)
      * 影响：更新sys_user表的username/email/phone/update_time
      */
     @Tag(name = "👤 个人中心")
@@ -98,7 +96,7 @@ public class UserController {
     @SecurityRequirement(name = "bearerAuth")
     @HasPermission("system:user:edit")
     public Result<UserVO> updateMe(@Valid @RequestBody UserDTO dto) {
-        UserVO vo = userService.updateUserMe(UserContext.getUserId(), dto);
+        UserVO vo = userService.updateUserMe(UserContext.getUsername(), dto);
         return Result.success(vo, "修改成功");
     }
 
@@ -118,7 +116,7 @@ public class UserController {
     public Result<Void> changeMyPassword(
             @RequestParam String oldPassword,
             @RequestParam String newPassword) {
-        userService.updatePassword(UserContext.getUserId(), oldPassword, newPassword);
+        userService.updatePassword(UserContext.getUsername(), oldPassword, newPassword);
         return Result.success(null, "密码修改成功，请重新登录");
     }
 
@@ -151,19 +149,19 @@ public class UserController {
 
     /**
      * [UM-002] 获取用户详情
-     * 功能：根据用户ID查询详细信息，包含角色列表
+     * 功能：根据用户名查询详细信息，包含角色列表
      * 权限：system:user:view
-     * 入参：userId(路径参数)
-     * 返回：UserVO(含角色列表)
+     * 入参：username(路径参数)
+     * 返回：UserVO(含角色列表，不含内部ID)
      * 影响：无
      */
     @Tag(name = "👥 用户管理")
-    @Operation(summary = "获取用户详情", description = "根据用户ID查询详细信息，包含角色列表")
-    @GetMapping("/{userId}")
+    @Operation(summary = "获取用户详情", description = "根据用户名查询详细信息，包含角色列表")
+    @GetMapping("/{username}")
     @SecurityRequirement(name = "bearerAuth")
     @HasPermission("system:user:view")
-    public Result<UserVO> getUserDetail(@PathVariable Long userId) {
-        UserVO vo = userService.getUserDetail(userId);
+    public Result<UserVO> getUserDetail(@PathVariable String username) {
+        UserVO vo = userService.getUserDetail(username);
         return Result.success(vo);
     }
 
@@ -171,17 +169,17 @@ public class UserController {
      * [UM-003] 修改用户信息
      * 功能：管理员修改用户的基本信息和状态
      * 权限：system:user:edit
-     * 入参：userId(路径参数), UserDTO(username, email, phone, status)
-     * 返回：UserVO(更新后的用户信息)
+     * 入参：username(路径参数), UserDTO(username, email, phone, status)
+     * 返回：UserVO(更新后的用户信息，不含内部ID)
      * 影响：更新sys_user表的username/email/phone/status/update_time
      */
     @Tag(name = "👥 用户管理")
     @Operation(summary = "修改用户信息", description = "管理员修改用户的基本信息和状态")
-    @PutMapping("/{userId}")
+    @PutMapping("/{username}")
     @SecurityRequirement(name = "bearerAuth")
     @HasPermission("system:user:edit")
-    public Result<UserVO> updateUser(@PathVariable Long userId, @Valid @RequestBody UserDTO dto) {
-        UserVO vo = userService.updateUser(userId, dto);
+    public Result<UserVO> updateUser(@PathVariable String username, @Valid @RequestBody UserDTO dto) {
+        UserVO vo = userService.updateUser(username, dto);
         return Result.success(vo, "修改成功");
     }
 
@@ -189,17 +187,17 @@ public class UserController {
      * [UM-004] 删除用户
      * 功能：物理删除用户，同时删除角色关联和Token
      * 权限：system:user:delete
-     * 入参：userId(路径参数)
+     * 入参：username(路径参数)
      * 返回：Result<Void>
      * 影响：删除sys_user表记录，删除sys_user_role表记录，删除Redis中的Refresh Token
      */
     @Tag(name = "👥 用户管理")
     @Operation(summary = "删除用户", description = "物理删除用户，同时删除角色关联和Token")
-    @DeleteMapping("/{userId}")
+    @DeleteMapping("/{username}")
     @SecurityRequirement(name = "bearerAuth")
     @HasPermission("system:user:delete")
-    public Result<Void> deleteUser(@PathVariable Long userId) {
-        userService.deleteUserByUserId(userId);
+    public Result<Void> deleteUser(@PathVariable String username) {
+        userService.deleteUserByUsername(username);
         return Result.success(null, "删除成功");
     }
 
@@ -207,19 +205,19 @@ public class UserController {
      * [UM-005] 禁用/启用用户
      * 功能：修改用户状态（0-正常 1-禁用）
      * 权限：system:user:edit
-     * 入参：userId(路径参数), status(0或1)
+     * 入参：username(路径参数), status(0或1)
      * 返回：Result<Void>
      * 影响：更新sys_user表的status和update_time
      */
     @Tag(name = "👥 用户管理")
     @Operation(summary = "禁用/启用用户", description = "修改用户状态（0-正常 1-禁用）")
-    @PutMapping("/{userId}/status")
+    @PutMapping("/{username}/status")
     @SecurityRequirement(name = "bearerAuth")
     @HasPermission("system:user:edit")
     public Result<Void> updateUserStatus(
-            @PathVariable Long userId,
+            @PathVariable String username,
             @RequestParam Integer status) {
-        userService.updateUserStatus(userId, status);
+        userService.updateUserStatusByUsername(username, status);
         return Result.success(null, status == 0 ? "已启用" : "已禁用");
     }
 
@@ -227,17 +225,17 @@ public class UserController {
      * [UM-006] 强制下线
      * 功能：清除用户所有Refresh Token，强制重新登录
      * 权限：system:user:edit
-     * 入参：userId(路径参数)
+     * 入参：username(路径参数)
      * 返回：Result<Void>
      * 影响：删除Redis中该用户的所有Refresh Token
      */
     @Tag(name = "👥 用户管理")
     @Operation(summary = "强制下线", description = "清除用户所有Refresh Token，强制重新登录")
-    @PostMapping("/{userId}/force-logout")
+    @PostMapping("/{username}/force-logout")
     @SecurityRequirement(name = "bearerAuth")
     @HasPermission("system:user:edit")
-    public Result<Void> forceLogout(@PathVariable Long userId) {
-        userService.forceLogout(userId);
+    public Result<Void> forceLogout(@PathVariable String username) {
+        userService.forceLogoutByUsername(username);
         return Result.success(null, "已强制下线");
     }
 
@@ -245,19 +243,19 @@ public class UserController {
      * [UM-007] 管理员重置密码
      * 功能：管理员直接重置用户密码，无需旧密码
      * 权限：system:user:edit
-     * 入参：userId(路径参数), newPassword
+     * 入参：username(路径参数), newPassword
      * 返回：Result<Void>
      * 影响：更新sys_user表的password，删除所有Refresh Token
      */
     @Tag(name = "👥 用户管理")
     @Operation(summary = "管理员重置密码", description = "管理员直接重置用户密码，无需旧密码")
-    @PutMapping("/{userId}/password")
+    @PutMapping("/{username}/password")
     @SecurityRequirement(name = "bearerAuth")
     @HasPermission("system:user:edit")
     public Result<Void> resetPassword(
-            @PathVariable Long userId,
+            @PathVariable String username,
             @RequestParam String newPassword) {
-        userService.resetPassword(userId, newPassword);
+        userService.resetPasswordByUsername(username, newPassword);
         return Result.success(null, "密码重置成功");
     }
 
@@ -265,19 +263,19 @@ public class UserController {
      * [UM-008] 分配用户角色
      * 功能：给用户分配角色（全量替换模式）
      * 权限：system:user:assign
-     * 入参：userId(路径参数), List<Long> roleIds
+     * 入参：username(路径参数), List<Long> roleIds
      * 返回：Result<Void>
      * 影响：删除sys_user_role表旧记录，插入新记录
      */
     @Tag(name = "👥 用户管理")
     @Operation(summary = "分配用户角色", description = "给用户分配角色（全量替换模式）")
-    @PutMapping("/{userId}/roles")
+    @PutMapping("/{username}/roles")
     @SecurityRequirement(name = "bearerAuth")
     @HasPermission("system:user:assign")
     public Result<Void> assignRoles(
-            @PathVariable Long userId,
+            @PathVariable String username,
             @RequestBody List<Long> roleIds) {
-        userService.assignRoles(userId, roleIds);
+        userService.assignRolesByUsername(username, roleIds);
         return Result.success(null, "角色分配成功");
     }
 

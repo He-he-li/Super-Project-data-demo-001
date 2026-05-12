@@ -2,6 +2,8 @@ package com.example.data_demo_002.modules.permission.service.impl;
 
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.example.data_demo_002.common.base.domain.SysUser;
+import com.example.data_demo_002.common.base.service.SysUserService;
 
 import com.example.data_demo_002.common.base.domain.SysPermission;
 import com.example.data_demo_002.common.base.domain.SysRolePermission;
@@ -31,6 +33,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class PermissionServiceImpl implements PermissionService {
 
+    private final SysUserService sysUserService;
     private final SysPermissionMapper permissionMapper;
     private final SysRolePermissionMapper rolePermissionMapper;
     private final SysUserRoleMapper userRoleMapper;
@@ -300,5 +303,25 @@ public class PermissionServiceImpl implements PermissionService {
                 return vo;
             })
             .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<String> getUserPermissionsByUsername(String username) {
+        SysUser user = sysUserService.getOne(new LambdaQueryWrapper<SysUser>()
+                .eq(SysUser::getUsername, username));
+        if (user == null) {
+            throw new BusinessException("用户不存在");
+        }
+        return getUserPermissions(user.getId());
+    }
+
+    @Override
+    public List<MenuVO> getUserMenusByUsername(String username) {
+        SysUser user = sysUserService.getOne(new LambdaQueryWrapper<SysUser>()
+                .eq(SysUser::getUsername, username));
+        if (user == null) {
+            throw new BusinessException("用户不存在");
+        }
+        return getUserMenus(user.getId());
     }
 }
