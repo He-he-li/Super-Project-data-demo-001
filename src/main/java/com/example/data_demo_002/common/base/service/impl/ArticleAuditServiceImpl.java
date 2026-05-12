@@ -16,7 +16,3 @@ public class ArticleAuditServiceImpl extends ServiceImpl<ArticleAuditMapper, Art
     implements ArticleAuditService {
 
 }
-
-
-
-

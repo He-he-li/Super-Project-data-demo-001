@@ -1,0 +1,122 @@
+UserController.login:LoginDTO(username=super_admin, password=Admin@123)
+2026-05-12T19:07:23.225+08:00  INFO 33860 --- [data_demo_002] [nio-8081-exec-4] c.e.d.modules.user.service.UserService   : Generated token pair for user super_admin: orgId=1
+2026-05-12T19:07:23.226+08:00  INFO 33860 --- [data_demo_002] [nio-8081-exec-4] c.e.d.modules.user.service.UserService   : Parsed refresh token info: userId=2054156476792561665, username=super_admin, jti=f8bca769-99a7-4097-88c2-9f5fc026f2da, orgId=1
+2026-05-12T19:07:23.226+08:00  INFO 33860 --- [data_demo_002] [nio-8081-exec-4] c.e.d.c.util.Jwt.RefreshTokenService     : Saving refresh token to Redis: key=refresh:token:f8bca769-99a7-4097-88c2-9f5fc026f2da, userId=2054156476792561665, expireTime=604800000ms
+2026-05-12T19:07:23.232+08:00  INFO 33860 --- [data_demo_002] [nio-8081-exec-4] c.e.d.c.util.Jwt.RefreshTokenService     : Refresh token saved successfully to Redis: refresh:token:f8bca769-99a7-4097-88c2-9f5fc026f2da
+2026-05-12T19:07:23.232+08:00  INFO 33860 --- [data_demo_002] [nio-8081-exec-4] c.e.d.modules.user.service.UserService   : Login successful for user: super_admin
+2026-05-12T19:07:23.255+08:00  INFO 33860 --- [data_demo_002] [nio-8081-exec-3] c.e.d.modules.user.service.UserService   : Roles assigned to user 2054156476792561665, count: 1
+UserController.login:LoginDTO(username=super_admin, password=Admin@123)
+2026-05-12T19:07:23.342+08:00  INFO 33860 --- [data_demo_002] [nio-8081-exec-6] c.e.d.modules.user.service.UserService   : Generated token pair for user super_admin: orgId=1
+2026-05-12T19:07:23.342+08:00  INFO 33860 --- [data_demo_002] [nio-8081-exec-6] c.e.d.modules.user.service.UserService   : Parsed refresh token info: userId=2054156476792561665, username=super_admin, jti=ef2ab73e-b774-4b09-8ef6-9f7be6484e37, orgId=1
+2026-05-12T19:07:23.342+08:00  INFO 33860 --- [data_demo_002] [nio-8081-exec-6] c.e.d.c.util.Jwt.RefreshTokenService     : Saving refresh token to Redis: key=refresh:token:ef2ab73e-b774-4b09-8ef6-9f7be6484e37, userId=2054156476792561665, expireTime=604800000ms
+2026-05-12T19:07:23.347+08:00  INFO 33860 --- [data_demo_002] [nio-8081-exec-6] c.e.d.c.util.Jwt.RefreshTokenService     : Refresh token saved successfully to Redis: refresh:token:ef2ab73e-b774-4b09-8ef6-9f7be6484e37
+2026-05-12T19:07:23.347+08:00  INFO 33860 --- [data_demo_002] [nio-8081-exec-6] c.e.d.modules.user.service.UserService   : Login successful for user: super_admin
+2026-05-12T19:07:23.358+08:00  WARN 33860 --- [data_demo_002] [nio-8081-exec-7] c.e.d.c.e.GlobalExceptionHandler         : 业务异常: 用户名已存在
+2026-05-12T19:07:23.359+08:00  WARN 33860 --- [data_demo_002] [nio-8081-exec-7] .m.m.a.ExceptionHandlerExceptionResolver : Resolved [com.example.data_demo_002.common.exception.BusinessException: 用户名已存在]
+UserController.login:LoginDTO(username=super_admin, password=Admin@123)
+2026-05-12T19:07:23.471+08:00  INFO 33860 --- [data_demo_002] [nio-8081-exec-9] c.e.d.modules.user.service.UserService   : Generated token pair for user super_admin: orgId=1
+2026-05-12T19:07:23.473+08:00  INFO 33860 --- [data_demo_002] [nio-8081-exec-9] c.e.d.modules.user.service.UserService   : Parsed refresh token info: userId=2054156476792561665, username=super_admin, jti=90033ae2-3df3-4bb0-bbb1-9d3e30624433, orgId=1
+2026-05-12T19:07:23.473+08:00  INFO 33860 --- [data_demo_002] [nio-8081-exec-9] c.e.d.c.util.Jwt.RefreshTokenService     : Saving refresh token to Redis: key=refresh:token:90033ae2-3df3-4bb0-bbb1-9d3e30624433, userId=2054156476792561665, expireTime=604800000ms
+2026-05-12T19:07:23.482+08:00  INFO 33860 --- [data_demo_002] [nio-8081-exec-9] c.e.d.c.util.Jwt.RefreshTokenService     : Refresh token saved successfully to Redis: refresh:token:90033ae2-3df3-4bb0-bbb1-9d3e30624433
+2026-05-12T19:07:23.483+08:00  INFO 33860 --- [data_demo_002] [nio-8081-exec-9] c.e.d.modules.user.service.UserService   : Login successful for user: super_admin
+2026-05-12T19:07:23.538+08:00  INFO 33860 --- [data_demo_002] [nio-8081-exec-4] c.e.d.modules.user.service.UserService   : Roles assigned to user 2054156476792561665, count: 1
+UserController.login:LoginDTO(username=super_admin, password=Admin@123)
+2026-05-12T19:07:23.874+08:00  INFO 33860 --- [data_demo_002] [nio-8081-exec-3] c.e.d.modules.user.service.UserService   : Generated token pair for user super_admin: orgId=1
+2026-05-12T19:07:23.875+08:00  INFO 33860 --- [data_demo_002] [nio-8081-exec-3] c.e.d.modules.user.service.UserService   : Parsed refresh token info: userId=2054156476792561665, username=super_admin, jti=1d0bfc8c-8300-40c9-aa1b-4ed93c64bca6, orgId=1
+2026-05-12T19:07:23.875+08:00  INFO 33860 --- [data_demo_002] [nio-8081-exec-3] c.e.d.c.util.Jwt.RefreshTokenService     : Saving refresh token to Redis: key=refresh:token:1d0bfc8c-8300-40c9-aa1b-4ed93c64bca6, userId=2054156476792561665, expireTime=604800000ms
+2026-05-12T19:07:23.897+08:00  INFO 33860 --- [data_demo_002] [nio-8081-exec-3] c.e.d.c.util.Jwt.RefreshTokenService     : Refresh token saved successfully to Redis: refresh:token:1d0bfc8c-8300-40c9-aa1b-4ed93c64bca6
+2026-05-12T19:07:23.897+08:00  INFO 33860 --- [data_demo_002] [nio-8081-exec-3] c.e.d.modules.user.service.UserService   : Login successful for user: super_admin
+2026-05-12T19:07:24.063+08:00  INFO 33860 --- [data_demo_002] [nio-8081-exec-7] c.e.d.modules.user.service.UserService   : Roles assigned to user 2054156480626155521, count: 1
+2026-05-12T19:07:24.251+08:00  INFO 33860 --- [data_demo_002] [nio-8081-exec-4] c.e.d.m.o.S.i.OrganizationServiceImpl    : 创建单位成功: 测试单位-超级管理员创建
+0
+UserController.login:LoginDTO(username=super_admin, password=Admin@123)
+2026-05-12T19:07:24.510+08:00  INFO 33860 --- [data_demo_002] [nio-8081-exec-3] c.e.d.modules.user.service.UserService   : Generated token pair for user super_admin: orgId=1
+2026-05-12T19:07:24.510+08:00  INFO 33860 --- [data_demo_002] [nio-8081-exec-3] c.e.d.modules.user.service.UserService   : Parsed refresh token info: userId=2054156476792561665, username=super_admin, jti=c53dbc13-b3e1-4985-a582-c661f28980cd, orgId=1
+2026-05-12T19:07:24.510+08:00  INFO 33860 --- [data_demo_002] [nio-8081-exec-3] c.e.d.c.util.Jwt.RefreshTokenService     : Saving refresh token to Redis: key=refresh:token:c53dbc13-b3e1-4985-a582-c661f28980cd, userId=2054156476792561665, expireTime=604800000ms
+2026-05-12T19:07:24.514+08:00  INFO 33860 --- [data_demo_002] [nio-8081-exec-3] c.e.d.c.util.Jwt.RefreshTokenService     : Refresh token saved successfully to Redis: refresh:token:c53dbc13-b3e1-4985-a582-c661f28980cd
+2026-05-12T19:07:24.514+08:00  INFO 33860 --- [data_demo_002] [nio-8081-exec-3] c.e.d.modules.user.service.UserService   : Login successful for user: super_admin
+2026-05-12T19:07:24.542+08:00  INFO 33860 --- [data_demo_002] [nio-8081-exec-6] c.e.d.modules.user.service.UserService   : User 2054156480626155521 status updated to 1
+2026-05-12T19:07:24.578+08:00  INFO 33860 --- [data_demo_002] [nio-8081-exec-7] c.e.d.modules.user.service.UserService   : User 2054156480626155521 status updated to 0
+UserController.login:LoginDTO(username=normal_user, password=User@123)
+2026-05-12T19:07:24.826+08:00  INFO 33860 --- [data_demo_002] [nio-8081-exec-4] c.e.d.modules.user.service.UserService   : Generated token pair for user normal_user: orgId=1
+2026-05-12T19:07:24.826+08:00  INFO 33860 --- [data_demo_002] [nio-8081-exec-4] c.e.d.modules.user.service.UserService   : Parsed refresh token info: userId=2054156483427950593, username=normal_user, jti=098dbf7d-2168-4236-a862-4eaaa43b7eb8, orgId=1
+2026-05-12T19:07:24.826+08:00  INFO 33860 --- [data_demo_002] [nio-8081-exec-4] c.e.d.c.util.Jwt.RefreshTokenService     : Saving refresh token to Redis: key=refresh:token:098dbf7d-2168-4236-a862-4eaaa43b7eb8, userId=2054156483427950593, expireTime=604800000ms
+2026-05-12T19:07:24.832+08:00  INFO 33860 --- [data_demo_002] [nio-8081-exec-4] c.e.d.c.util.Jwt.RefreshTokenService     : Refresh token saved successfully to Redis: refresh:token:098dbf7d-2168-4236-a862-4eaaa43b7eb8
+2026-05-12T19:07:24.832+08:00  INFO 33860 --- [data_demo_002] [nio-8081-exec-4] c.e.d.modules.user.service.UserService   : Login successful for user: normal_user
+2026-05-12T19:07:24.925+08:00  WARN 33860 --- [data_demo_002] [nio-8081-exec-7] c.e.d.m.p.aspect.HasPermissionAspect     : 权限不足：userId=2054156483427950593, requiredPermission=system:org:view
+2026-05-12T19:07:24.925+08:00  WARN 33860 --- [data_demo_002] [nio-8081-exec-7] c.e.d.c.e.GlobalExceptionHandler         : 业务异常: 没有权限访问该资源，所需权限：system:org:view
+2026-05-12T19:07:24.926+08:00  WARN 33860 --- [data_demo_002] [nio-8081-exec-7] .m.m.a.ExceptionHandlerExceptionResolver : Resolved [com.example.data_demo_002.common.exception.BusinessException: 没有权限访问该资源，所需权限：system:org:view]
+2026-05-12T19:07:24.952+08:00  WARN 33860 --- [data_demo_002] [nio-8081-exec-9] c.e.d.m.p.aspect.HasPermissionAspect     : 权限不足：userId=2054156483427950593, requiredPermission=system:role:view
+2026-05-12T19:07:24.952+08:00  WARN 33860 --- [data_demo_002] [nio-8081-exec-9] c.e.d.c.e.GlobalExceptionHandler         : 业务异常: 没有权限访问该资源，所需权限：system:role:view
+2026-05-12T19:07:24.954+08:00  WARN 33860 --- [data_demo_002] [nio-8081-exec-9] .m.m.a.ExceptionHandlerExceptionResolver : Resolved [com.example.data_demo_002.common.exception.BusinessException: 没有权限访问该资源，所需权限：system:role:view]
+2026-05-12T19:07:24.981+08:00  WARN 33860 --- [data_demo_002] [nio-8081-exec-4] c.e.d.m.p.aspect.HasPermissionAspect     : 权限不足：userId=2054156483427950593, requiredPermission=system:permission:view
+2026-05-12T19:07:24.982+08:00  WARN 33860 --- [data_demo_002] [nio-8081-exec-4] c.e.d.c.e.GlobalExceptionHandler         : 业务异常: 没有权限访问该资源，所需权限：system:permission:view
+2026-05-12T19:07:24.982+08:00  WARN 33860 --- [data_demo_002] [nio-8081-exec-4] .m.m.a.ExceptionHandlerExceptionResolver : Resolved [com.example.data_demo_002.common.exception.BusinessException: 没有权限访问该资源，所需权限：system:permission:view]
+2026-05-12T19:07:25.175+08:00  WARN 33860 --- [data_demo_002] [nio-8081-exec-6] c.e.d.m.p.aspect.HasPermissionAspect     : 权限不足：userId=2054156483427950593, requiredPermission=system:user:edit
+2026-05-12T19:07:25.176+08:00  WARN 33860 --- [data_demo_002] [nio-8081-exec-6] c.e.d.c.e.GlobalExceptionHandler         : 业务异常: 没有权限访问该资源，所需权限：system:user:edit
+2026-05-12T19:07:25.177+08:00  WARN 33860 --- [data_demo_002] [nio-8081-exec-6] .m.m.a.ExceptionHandlerExceptionResolver : Resolved [com.example.data_demo_002.common.exception.BusinessException: 没有权限访问该资源，所需权限：system:user:edit]
+UserController.login:LoginDTO(username=org_admin, password=Org@123)
+2026-05-12T19:07:25.435+08:00  INFO 33860 --- [data_demo_002] [nio-8081-exec-9] c.e.d.modules.user.service.UserService   : Generated token pair for user org_admin: orgId=1
+2026-05-12T19:07:25.436+08:00  INFO 33860 --- [data_demo_002] [nio-8081-exec-9] c.e.d.modules.user.service.UserService   : Parsed refresh token info: userId=2054156485835481090, username=org_admin, jti=a90cd92e-c160-487d-affa-cb3d5a0f16ad, orgId=1
+2026-05-12T19:07:25.436+08:00  INFO 33860 --- [data_demo_002] [nio-8081-exec-9] c.e.d.c.util.Jwt.RefreshTokenService     : Saving refresh token to Redis: key=refresh:token:a90cd92e-c160-487d-affa-cb3d5a0f16ad, userId=2054156485835481090, expireTime=604800000ms
+2026-05-12T19:07:25.445+08:00  INFO 33860 --- [data_demo_002] [nio-8081-exec-9] c.e.d.c.util.Jwt.RefreshTokenService     : Refresh token saved successfully to Redis: refresh:token:a90cd92e-c160-487d-affa-cb3d5a0f16ad
+2026-05-12T19:07:25.445+08:00  INFO 33860 --- [data_demo_002] [nio-8081-exec-9] c.e.d.modules.user.service.UserService   : Login successful for user: org_admin
+2026-05-12T19:07:25.489+08:00  INFO 33860 --- [data_demo_002] [nio-8081-exec-4] c.e.d.modules.user.service.UserService   : Roles assigned to user 2054156485835481090, count: 1
+UserController.login:LoginDTO(username=org_admin, password=Org@123)
+2026-05-12T19:07:25.583+08:00  INFO 33860 --- [data_demo_002] [nio-8081-exec-3] c.e.d.modules.user.service.UserService   : Generated token pair for user org_admin: orgId=1
+2026-05-12T19:07:25.584+08:00  INFO 33860 --- [data_demo_002] [nio-8081-exec-3] c.e.d.modules.user.service.UserService   : Parsed refresh token info: userId=2054156485835481090, username=org_admin, jti=5937d3e1-9393-4987-90a1-b589576a42df, orgId=1
+2026-05-12T19:07:25.584+08:00  INFO 33860 --- [data_demo_002] [nio-8081-exec-3] c.e.d.c.util.Jwt.RefreshTokenService     : Saving refresh token to Redis: key=refresh:token:5937d3e1-9393-4987-90a1-b589576a42df, userId=2054156485835481090, expireTime=604800000ms
+2026-05-12T19:07:25.586+08:00  INFO 33860 --- [data_demo_002] [nio-8081-exec-3] c.e.d.c.util.Jwt.RefreshTokenService     : Refresh token saved successfully to Redis: refresh:token:5937d3e1-9393-4987-90a1-b589576a42df
+2026-05-12T19:07:25.586+08:00  INFO 33860 --- [data_demo_002] [nio-8081-exec-3] c.e.d.modules.user.service.UserService   : Login successful for user: org_admin
+2026-05-12T19:07:25.658+08:00  INFO 33860 --- [data_demo_002] [nio-8081-exec-9] c.e.d.m.o.S.i.OrganizationServiceImpl    : 创建单位成功: 测试单位-单位管理员创建
+2026-05-12T19:07:25.690+08:00  WARN 33860 --- [data_demo_002] [nio-8081-exec-4] c.e.d.m.p.aspect.HasPermissionAspect     : 权限不足：userId=2054156485835481090, requiredPermission=system:role:view
+2026-05-12T19:07:25.691+08:00  WARN 33860 --- [data_demo_002] [nio-8081-exec-4] c.e.d.c.e.GlobalExceptionHandler         : 业务异常: 没有权限访问该资源，所需权限：system:role:view
+2026-05-12T19:07:25.692+08:00  WARN 33860 --- [data_demo_002] [nio-8081-exec-4] .m.m.a.ExceptionHandlerExceptionResolver : Resolved [com.example.data_demo_002.common.exception.BusinessException: 没有权限访问该资源，所需权限：system:role:view]
+2026-05-12T19:07:25.738+08:00  WARN 33860 --- [data_demo_002] [nio-8081-exec-3] c.e.d.m.p.aspect.HasPermissionAspect     : 权限不足：userId=2054156485835481090, requiredPermission=system:permission:view
+2026-05-12T19:07:25.740+08:00  WARN 33860 --- [data_demo_002] [nio-8081-exec-3] c.e.d.c.e.GlobalExceptionHandler         : 业务异常: 没有权限访问该资源，所需权限：system:permission:view
+2026-05-12T19:07:25.742+08:00  WARN 33860 --- [data_demo_002] [nio-8081-exec-3] .m.m.a.ExceptionHandlerExceptionResolver : Resolved [com.example.data_demo_002.common.exception.BusinessException: 没有权限访问该资源，所需权限：system:permission:view]
+UserController.login:LoginDTO(username=dept_manager, password=Manager@123)
+2026-05-12T19:07:26.238+08:00  INFO 33860 --- [data_demo_002] [nio-8081-exec-8] c.e.d.modules.user.service.UserService   : Generated token pair for user dept_manager: orgId=1
+2026-05-12T19:07:26.239+08:00  INFO 33860 --- [data_demo_002] [nio-8081-exec-8] c.e.d.modules.user.service.UserService   : Parsed refresh token info: userId=2054156488402395137, username=dept_manager, jti=994fa479-f788-4991-b5fa-430d4a3bce00, orgId=1
+2026-05-12T19:07:26.239+08:00  INFO 33860 --- [data_demo_002] [nio-8081-exec-8] c.e.d.c.util.Jwt.RefreshTokenService     : Saving refresh token to Redis: key=refresh:token:994fa479-f788-4991-b5fa-430d4a3bce00, userId=2054156488402395137, expireTime=604800000ms
+2026-05-12T19:07:26.385+08:00  INFO 33860 --- [data_demo_002] [nio-8081-exec-8] c.e.d.c.util.Jwt.RefreshTokenService     : Refresh token saved successfully to Redis: refresh:token:994fa479-f788-4991-b5fa-430d4a3bce00
+2026-05-12T19:07:26.385+08:00  INFO 33860 --- [data_demo_002] [nio-8081-exec-8] c.e.d.modules.user.service.UserService   : Login successful for user: dept_manager
+2026-05-12T19:07:26.438+08:00  INFO 33860 --- [data_demo_002] [io-8081-exec-10] c.e.d.modules.user.service.UserService   : Roles assigned to user 2054156488402395137, count: 1
+UserController.login:LoginDTO(username=dept_manager, password=Manager@123)
+2026-05-12T19:07:26.710+08:00  INFO 33860 --- [data_demo_002] [nio-8081-exec-1] c.e.d.modules.user.service.UserService   : Generated token pair for user dept_manager: orgId=1
+2026-05-12T19:07:26.710+08:00  INFO 33860 --- [data_demo_002] [nio-8081-exec-1] c.e.d.modules.user.service.UserService   : Parsed refresh token info: userId=2054156488402395137, username=dept_manager, jti=debaa4c6-fd67-4118-9a21-4b42259019ce, orgId=1
+2026-05-12T19:07:26.710+08:00  INFO 33860 --- [data_demo_002] [nio-8081-exec-1] c.e.d.c.util.Jwt.RefreshTokenService     : Saving refresh token to Redis: key=refresh:token:debaa4c6-fd67-4118-9a21-4b42259019ce, userId=2054156488402395137, expireTime=604800000ms
+2026-05-12T19:07:26.717+08:00  INFO 33860 --- [data_demo_002] [nio-8081-exec-1] c.e.d.c.util.Jwt.RefreshTokenService     : Refresh token saved successfully to Redis: refresh:token:debaa4c6-fd67-4118-9a21-4b42259019ce
+2026-05-12T19:07:26.717+08:00  INFO 33860 --- [data_demo_002] [nio-8081-exec-1] c.e.d.modules.user.service.UserService   : Login successful for user: dept_manager
+0
+UserController.login:LoginDTO(username=normal_user, password=User@123)
+2026-05-12T19:07:27.380+08:00  INFO 33860 --- [data_demo_002] [nio-8081-exec-8] c.e.d.modules.user.service.UserService   : Generated token pair for user normal_user: orgId=1
+2026-05-12T19:07:27.381+08:00  INFO 33860 --- [data_demo_002] [nio-8081-exec-8] c.e.d.modules.user.service.UserService   : Parsed refresh token info: userId=2054156483427950593, username=normal_user, jti=29087033-82f1-452f-9c7e-cce1a3f48ee0, orgId=1
+2026-05-12T19:07:27.381+08:00  INFO 33860 --- [data_demo_002] [nio-8081-exec-8] c.e.d.c.util.Jwt.RefreshTokenService     : Saving refresh token to Redis: key=refresh:token:29087033-82f1-452f-9c7e-cce1a3f48ee0, userId=2054156483427950593, expireTime=604800000ms
+2026-05-12T19:07:27.500+08:00  INFO 33860 --- [data_demo_002] [nio-8081-exec-8] c.e.d.c.util.Jwt.RefreshTokenService     : Refresh token saved successfully to Redis: refresh:token:29087033-82f1-452f-9c7e-cce1a3f48ee0
+2026-05-12T19:07:27.500+08:00  INFO 33860 --- [data_demo_002] [nio-8081-exec-8] c.e.d.modules.user.service.UserService   : Login successful for user: normal_user
+2026-05-12T19:07:27.523+08:00  WARN 33860 --- [data_demo_002] [io-8081-exec-10] c.e.d.m.p.aspect.HasPermissionAspect     : 权限不足：userId=2054156488402395137, requiredPermission=system:org:view
+2026-05-12T19:07:27.524+08:00  WARN 33860 --- [data_demo_002] [io-8081-exec-10] c.e.d.c.e.GlobalExceptionHandler         : 业务异常: 没有权限访问该资源，所需权限：system:org:view
+2026-05-12T19:07:27.525+08:00  WARN 33860 --- [data_demo_002] [io-8081-exec-10] .m.m.a.ExceptionHandlerExceptionResolver : Resolved [com.example.data_demo_002.common.exception.BusinessException: 没有权限访问该资源，所需权限：system:org:view]
+2026-05-12T19:07:27.548+08:00  WARN 33860 --- [data_demo_002] [nio-8081-exec-1] c.e.d.m.p.aspect.HasPermissionAspect     : 权限不足：userId=2054156488402395137, requiredPermission=system:org:create
+2026-05-12T19:07:27.548+08:00  WARN 33860 --- [data_demo_002] [nio-8081-exec-1] c.e.d.c.e.GlobalExceptionHandler         : 业务异常: 没有权限访问该资源，所需权限：system:org:create
+2026-05-12T19:07:27.550+08:00  WARN 33860 --- [data_demo_002] [nio-8081-exec-1] .m.m.a.ExceptionHandlerExceptionResolver : Resolved [com.example.data_demo_002.common.exception.BusinessException: 没有权限访问该资源，所需权限：system:org:create]
+2026-05-12T19:07:27.573+08:00  WARN 33860 --- [data_demo_002] [nio-8081-exec-2] c.e.d.m.p.aspect.HasPermissionAspect     : 权限不足：userId=2054156483427950593, requiredPermission=system:user:edit
+2026-05-12T19:07:27.573+08:00  WARN 33860 --- [data_demo_002] [nio-8081-exec-2] c.e.d.c.e.GlobalExceptionHandler         : 业务异常: 没有权限访问该资源，所需权限：system:user:edit
+2026-05-12T19:07:27.574+08:00  WARN 33860 --- [data_demo_002] [nio-8081-exec-2] .m.m.a.ExceptionHandlerExceptionResolver : Resolved [com.example.data_demo_002.common.exception.BusinessException: 没有权限访问该资源，所需权限：system:user:edit]
+UserController.login:LoginDTO(username=super_admin, password=Admin@123)
+2026-05-12T19:07:27.740+08:00  INFO 33860 --- [data_demo_002] [nio-8081-exec-8] c.e.d.modules.user.service.UserService   : Generated token pair for user super_admin: orgId=1
+2026-05-12T19:07:27.741+08:00  INFO 33860 --- [data_demo_002] [nio-8081-exec-8] c.e.d.modules.user.service.UserService   : Parsed refresh token info: userId=2054156476792561665, username=super_admin, jti=bcda2168-8394-460e-8f1a-da5d2e9abf3d, orgId=1
+2026-05-12T19:07:27.741+08:00  INFO 33860 --- [data_demo_002] [nio-8081-exec-8] c.e.d.c.util.Jwt.RefreshTokenService     : Saving refresh token to Redis: key=refresh:token:bcda2168-8394-460e-8f1a-da5d2e9abf3d, userId=2054156476792561665, expireTime=604800000ms
+2026-05-12T19:07:27.746+08:00  INFO 33860 --- [data_demo_002] [nio-8081-exec-8] c.e.d.c.util.Jwt.RefreshTokenService     : Refresh token saved successfully to Redis: refresh:token:bcda2168-8394-460e-8f1a-da5d2e9abf3d
+2026-05-12T19:07:27.746+08:00  INFO 33860 --- [data_demo_002] [nio-8081-exec-8] c.e.d.modules.user.service.UserService   : Login successful for user: super_admin
+2026-05-12T19:07:28.451+08:00  INFO 33860 --- [data_demo_002] [io-8081-exec-10] c.e.d.c.util.Jwt.RefreshTokenService     : Deleted 2 refresh tokens for user 2054156483427950593
+2026-05-12T19:07:28.451+08:00  INFO 33860 --- [data_demo_002] [io-8081-exec-10] c.e.d.modules.user.service.UserService   : Password updated and all refresh tokens deleted for user 2054156483427950593
+UserController.login:LoginDTO(username=normal_user, password=Reset@123)
+2026-05-12T19:07:28.545+08:00  INFO 33860 --- [data_demo_002] [nio-8081-exec-1] c.e.d.modules.user.service.UserService   : Generated token pair for user normal_user: orgId=1
+2026-05-12T19:07:28.546+08:00  INFO 33860 --- [data_demo_002] [nio-8081-exec-1] c.e.d.modules.user.service.UserService   : Parsed refresh token info: userId=2054156483427950593, username=normal_user, jti=bb84c474-addf-4347-b801-a94e376e3850, orgId=1
+2026-05-12T19:07:28.546+08:00  INFO 33860 --- [data_demo_002] [nio-8081-exec-1] c.e.d.c.util.Jwt.RefreshTokenService     : Saving refresh token to Redis: key=refresh:token:bb84c474-addf-4347-b801-a94e376e3850, userId=2054156483427950593, expireTime=604800000ms
+2026-05-12T19:07:28.549+08:00  INFO 33860 --- [data_demo_002] [nio-8081-exec-1] c.e.d.c.util.Jwt.RefreshTokenService     : Refresh token saved successfully to Redis: refresh:token:bb84c474-addf-4347-b801-a94e376e3850
+2026-05-12T19:07:28.549+08:00  INFO 33860 --- [data_demo_002] [nio-8081-exec-1] c.e.d.modules.user.service.UserService   : Login successful for user: normal_user
+2026-05-12T19:07:28.728+08:00  INFO 33860 --- [data_demo_002] [nio-8081-exec-2] c.e.d.c.util.Jwt.RefreshTokenService     : Deleted 1 refresh tokens for user 2054156483427950593
+2026-05-12T19:07:28.728+08:00  INFO 33860 --- [data_demo_002] [nio-8081-exec-2] c.e.d.modules.user.service.UserService   : User 2054156483427950593 forced logout, all refresh tokens deleted

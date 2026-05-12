@@ -21,6 +21,11 @@ public class SysUser {
     private Long id;
 
     /**
+     * 所属单位ID
+     */
+    private Long organizationId;
+
+    /**
      * 用户名
      */
     private String username;

@@ -2,6 +2,7 @@ package com.example.data_demo_002.modules.role.service.impl;
 
 import com.example.data_demo_002.common.base.domain.SysUser;
 import com.example.data_demo_002.common.base.service.SysUserService;
+import com.example.data_demo_002.common.util.Jwt.UserContext;
 
 
 
@@ -42,9 +43,20 @@ public class RoleServiceImpl implements RoleService {
 
     @Override
     public List<SysRole> listAllRoles() {
-        return sysRoleService.list(new LambdaQueryWrapper<SysRole>()
-                .eq(SysRole::getDeleted, 0)
-                .orderByAsc(SysRole::getId));
+        LambdaQueryWrapper<SysRole> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(SysRole::getDeleted, 0);
+        
+        // 按单位过滤（包含全局角色）
+        Long currentOrgId = UserContext.getOrganizationId();
+        if (currentOrgId != null) {
+            wrapper.and(w -> w.eq(SysRole::getOrganizationId, currentOrgId)
+                              .or()
+                              .isNull(SysRole::getOrganizationId));
+        }
+        
+        wrapper.orderByAsc(SysRole::getId);
+        
+        return sysRoleService.list(wrapper);
     }
 
     @Override
@@ -56,6 +68,14 @@ public class RoleServiceImpl implements RoleService {
 
         if (roleName != null && !roleName.trim().isEmpty()) {
             wrapper.like(SysRole::getRoleName, roleName);
+        }
+
+        // 按单位过滤（包含全局角色）
+        Long currentOrgId = UserContext.getOrganizationId();
+        if (currentOrgId != null) {
+            wrapper.and(w -> w.eq(SysRole::getOrganizationId, currentOrgId)
+                              .or()
+                              .isNull(SysRole::getOrganizationId));
         }
 
         wrapper.orderByAsc(SysRole::getId);

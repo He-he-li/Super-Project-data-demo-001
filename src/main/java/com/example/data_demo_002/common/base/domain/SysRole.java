@@ -21,6 +21,11 @@ public class SysRole {
     private Long id;
 
     /**
+     * 所属单位ID（NULL表示全局角色）
+     */
+    private Long organizationId;
+
+    /**
      * 角色名称
      */
     private String roleName;

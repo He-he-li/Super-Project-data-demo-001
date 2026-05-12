@@ -11,6 +11,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 @Slf4j
 @Component
@@ -19,20 +20,15 @@ public class JwtUtil {
     @Value("${jwt.secret}")
     private String secret;
 
-    // Access Token 有效期 (毫秒)，例如 30 分钟 = 1800000
     @Value("${jwt.access-expiration:1800000}")
     private Long accessExpiration;
 
-    // Refresh Token 有效期 (毫秒)，例如 7 天 = 604800000
     @Value("${jwt.refresh-expiration:604800000}")
     private Long refreshExpiration;
 
     @Value("${jwt.prefix}")
     private String prefix;
 
-    /**
-     * 生成密钥
-     */
     private SecretKey getSigningKey() {
         byte[] keyBytes = secret.getBytes(StandardCharsets.UTF_8);
         return Keys.hmacShaKeyFor(keyBytes);
@@ -40,12 +36,6 @@ public class JwtUtil {
 
     /**
      * 生成 Access Token
-     *
-     * @param userId      用户 ID
-     * @param username    用户名
-     * @param status      状态标识 (使用 JwtStatus 常量)
-     * @param dataVersion 数据版本号 (用于检测密码/权限变更，建议传 updateTime 的时间戳)
-     * @param extraClaims 其他自定义字段 (可选)
      */
     public String generateAccessToken(Long userId, String username, int status, Long dataVersion, Map<String, Object> extraClaims) {
         Map<String, Object> claims = new HashMap<>();
@@ -53,7 +43,7 @@ public class JwtUtil {
         claims.put("username", username);
         claims.put("status", status);
         claims.put("dataVersion", dataVersion);
-        claims.put("tokenType", "ACCESS"); // 标记 token 类型
+        claims.put("tokenType", "ACCESS");
 
         if (extraClaims != null) {
             claims.putAll(extraClaims);
@@ -73,16 +63,12 @@ public class JwtUtil {
 
     /**
      * 生成 Refresh Token
-     *
-     * @param userId   用户 ID
-     * @param username 用户名
-     * @param jti      唯一标识 (建议使用 UUID)
      */
     public String generateRefreshToken(Long userId, String username, String jti) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("userId", userId);
         claims.put("username", username);
-        claims.put("jti", jti); // 唯一标识，用于 Redis 存储和失效
+        claims.put("jti", jti);
         claims.put("tokenType", "REFRESH");
 
         Date now = new Date();
@@ -98,38 +84,124 @@ public class JwtUtil {
     }
 
     /**
-     * 生成双 Token（同时返回 access token 和 refresh token）
+     * 生成双Token（Access + Refresh）- 不带单位ID
      */
     public TokenPair generateTokenPair(Long userId, String username, int status, Long dataVersion) {
-        String jti = java.util.UUID.randomUUID().toString();
+        String jti = UUID.randomUUID().toString();
         String accessToken = generateAccessToken(userId, username, status, dataVersion, null);
         String refreshToken = generateRefreshToken(userId, username, jti);
 
         TokenPair pair = new TokenPair();
         pair.setToken(accessToken);
         pair.setRefreshToken(refreshToken);
-        pair.setExpiresIn(accessExpiration / 1000); // 秒
-        pair.setRefreshExpiresIn(refreshExpiration / 1000); // 秒
+        pair.setExpiresIn(accessExpiration / 1000);
+        pair.setRefreshExpiresIn(refreshExpiration / 1000);
         return pair;
     }
 
     /**
+     * 生成双Token（带单位ID）
+     */
+    public TokenPair generateTokenPair(Long userId, String username, int status, Long dataVersion, Long organizationId) {
+        Map<String, Object> extraClaims = new HashMap<>();
+        extraClaims.put("organizationId", organizationId);
+        
+        String jti = UUID.randomUUID().toString();
+        String accessToken = generateAccessToken(userId, username, status, dataVersion, extraClaims);
+        
+        Map<String, Object> refreshClaims = new HashMap<>();
+        refreshClaims.put("organizationId", organizationId);
+        String refreshToken = generateRefreshTokenWithClaims(userId, username, jti, refreshClaims);
+
+        TokenPair pair = new TokenPair();
+        pair.setToken(accessToken);
+        pair.setRefreshToken(refreshToken);
+        pair.setExpiresIn(accessExpiration / 1000);
+        pair.setRefreshExpiresIn(refreshExpiration / 1000);
+        return pair;
+    }
+
+    /**
+     * 生成带自定义Claims的Refresh Token
+     */
+    private String generateRefreshTokenWithClaims(Long userId, String username, String jti, Map<String, Object> extraClaims) {
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("userId", userId);
+        claims.put("username", username);
+        claims.put("jti", jti);
+        claims.put("tokenType", "REFRESH");
+        
+        if (extraClaims != null) {
+            claims.putAll(extraClaims);
+        }
+
+        Date now = new Date();
+        Date expireDate = new Date(now.getTime() + refreshExpiration);
+
+        return Jwts.builder()
+                .claims(claims)
+                .subject(username)
+                .issuedAt(now)
+                .expiration(expireDate)
+                .signWith(getSigningKey())
+                .compact();
+    }
+
+    /**
+     * 从Token中获取单位ID
+     */
+    public Long getOrganizationIdFromToken(String token) {
+        try {
+            Claims claims = Jwts.parser()
+                    .verifyWith(getSigningKey())
+                    .build()
+                    .parseSignedClaims(token)
+                    .getPayload();
+            
+            Object orgId = claims.get("organizationId");
+            if (orgId != null) {
+                return Long.valueOf(orgId.toString());
+            }
+            return null;
+        } catch (Exception e) {
+            log.error("解析Token中的单位ID失败: {}", e.getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * 从Token中获取用户ID
+     */
+    public Long getUserIdFromToken(String token) {
+        try {
+            Claims claims = Jwts.parser()
+                    .verifyWith(getSigningKey())
+                    .build()
+                    .parseSignedClaims(token)
+                    .getPayload();
+            
+            Object userId = claims.get("userId");
+            if (userId != null) {
+                return Long.valueOf(userId.toString());
+            }
+            return null;
+        } catch (Exception e) {
+            log.error("解析Token中的用户ID失败: {}", e.getMessage());
+            return null;
+        }
+    }
+
+    /**
      * 校验 Access Token 并尝试滑动续期
-     *
-     * @param token 原始 Token
-     * @return TokenInfo 包含解析信息和新生成的 Token (如果需要续期)
-     * @throws RuntimeException 如果 Token 无效、过期或状态异常
      */
     public TokenInfo validateAccessToken(String token) {
         Claims claims = parseToken(token);
 
-        // 校验 token 类型
         String tokenType = claims.get("tokenType", String.class);
         if (!"ACCESS".equals(tokenType)) {
             throw new JwtException("Invalid token type: expected ACCESS, got " + tokenType);
         }
 
-        // 校验状态字段
         Integer status = claims.get("status", Integer.class);
         if (status == null) {
             throw new JwtException("Token missing status field");
@@ -140,7 +212,6 @@ public class JwtUtil {
             throw new TokenStatusException("Token status invalid: " + msg, status);
         }
 
-        // 提取基础信息
         TokenInfo info = new TokenInfo();
         info.setUserId(Long.valueOf(claims.get("userId").toString()));
         info.setUsername(claims.getSubject());
@@ -148,12 +219,11 @@ public class JwtUtil {
         info.setDataVersion(Long.valueOf(claims.get("dataVersion").toString()));
         info.setValid(true);
 
-        // 滑动续期逻辑
         Date expiration = claims.getExpiration();
         long now = System.currentTimeMillis();
         long remainingTime = expiration.getTime() - now;
 
-        if (remainingTime < accessExpiration / 2) { // 剩余时间不足一半时续期
+        if (remainingTime < accessExpiration / 2) {
             log.debug("Access token renew triggered for user: {}, remaining: {} ms", info.getUsername(), remainingTime);
             info.setShouldRenew(true);
             info.setNewAccessToken(generateAccessToken(
@@ -172,21 +242,15 @@ public class JwtUtil {
 
     /**
      * 校验 Refresh Token
-     *
-     * @param token Refresh Token
-     * @return RefreshTokenInfo 包含解析信息
-     * @throws RuntimeException 如果 Token 无效或过期
      */
     public RefreshTokenInfo validateRefreshToken(String token) {
         Claims claims = parseToken(token);
 
-        // 校验 token 类型
         String tokenType = claims.get("tokenType", String.class);
         if (!"REFRESH".equals(tokenType)) {
             throw new JwtException("Invalid token type: expected REFRESH, got " + tokenType);
         }
 
-        // 提取基础信息
         RefreshTokenInfo info = new RefreshTokenInfo();
         info.setUserId(Long.valueOf(claims.get("userId").toString()));
         info.setUsername(claims.getSubject());
@@ -197,7 +261,7 @@ public class JwtUtil {
     }
 
     /**
-     * 解析 Token (仅解析，不做业务状态校验，供内部使用)
+     * 解析 Token
      */
     private Claims parseToken(String token) {
         try {
@@ -234,9 +298,6 @@ public class JwtUtil {
 
     // ================= 内部类 =================
 
-    /**
-     * 封装 Access Token 校验结果
-     */
     @lombok.Data
     @lombok.NoArgsConstructor
     public static class TokenInfo {
@@ -249,9 +310,6 @@ public class JwtUtil {
         private String newAccessToken;
     }
 
-    /**
-     * 封装 Refresh Token 校验结果
-     */
     @lombok.Data
     @lombok.NoArgsConstructor
     public static class RefreshTokenInfo {
@@ -261,21 +319,15 @@ public class JwtUtil {
         private boolean isValid;
     }
 
-    /**
-     * 封装双 Token 对
-     */
     @lombok.Data
     @lombok.NoArgsConstructor
     public static class TokenPair {
         private String token;
         private String refreshToken;
-        private Long expiresIn; // Access Token 有效期 (秒)
-        private Long refreshExpiresIn; // Refresh Token 有效期 (秒)
+        private Long expiresIn;
+        private Long refreshExpiresIn;
     }
 
-    /**
-     * 自定义异常：用于区分是"过期"还是"状态被封禁"
-     */
     public static class TokenStatusException extends RuntimeException {
         private final int statusCode;
 

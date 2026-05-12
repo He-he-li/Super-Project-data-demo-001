@@ -13,6 +13,7 @@ import com.example.data_demo_002.common.constant.RoleConstants;
 import com.example.data_demo_002.common.exception.BusinessException;
 import com.example.data_demo_002.common.util.Jwt.JwtUtil;
 import com.example.data_demo_002.common.util.Jwt.RefreshTokenService;
+import com.example.data_demo_002.common.util.Jwt.UserContext;
 import com.example.data_demo_002.modules.user.dao.UserDTO;
 import com.example.data_demo_002.modules.user.dao.UserLoginVO;
 import com.example.data_demo_002.modules.user.dao.UserVO;
@@ -60,7 +61,7 @@ public class UserService {
         if (!passwordEncoder.matches(password, user.getPassword())) {
             throw new BusinessException("账号或密码错误，请重新输入");
         }
-
+      
         List<SysUserRole> relations = sysUserRoleService.list(
                 new LambdaQueryWrapper<SysUserRole>().eq(SysUserRole::getUserId, user.getId())
         );
@@ -74,18 +75,21 @@ public class UserService {
                     .collect(Collectors.toList());
         }
         
+        // 获取用户的单位ID
+        Long organizationId = user.getOrganizationId() != null ? user.getOrganizationId() : 1L;
+        
         JwtUtil.TokenPair tokenPair = jwtUtil.generateTokenPair(
                 user.getId(),
                 username,
                 user.getStatus(),
-                user.getVersion().longValue()
+                user.getVersion().longValue(),
+                organizationId
         );
-        log.info("Generated token pair for user {}: accessExpire={}s, refreshExpire={}s",
-                username, tokenPair.getExpiresIn(), tokenPair.getRefreshExpiresIn());
+        log.info("Generated token pair for user {}: orgId={}", username, organizationId);
         
         JwtUtil.RefreshTokenInfo refreshInfo = jwtUtil.validateRefreshToken(tokenPair.getRefreshToken());
-        log.info("Parsed refresh token info: userId={}, username={}, jti={}", 
-                refreshInfo.getUserId(), refreshInfo.getUsername(), refreshInfo.getJti());
+        log.info("Parsed refresh token info: userId={}, username={}, jti={}, orgId={}", 
+                refreshInfo.getUserId(), refreshInfo.getUsername(), refreshInfo.getJti(), organizationId);
         
         refreshTokenService.saveRefreshToken(
                 refreshInfo.getJti(),
@@ -106,7 +110,7 @@ public class UserService {
         loginVO.setExpiresIn(tokenPair.getExpiresIn());
         loginVO.setRefreshExpiresIn(tokenPair.getRefreshExpiresIn());
 
-        log.info("Login successful for user: {}, returning UserLoginVO with tokens", username);
+        log.info("Login successful for user: {}", username);
         return loginVO;
     }
 
@@ -270,6 +274,13 @@ public class UserService {
         user.setEmail(dto.getEmail());
         user.setPhone(dto.getPhone());
         user.setStatus(0);
+        
+        // 设置所属单位（从当前上下文或默认值）
+        Long organizationId = UserContext.getOrganizationId();
+        if (organizationId == null) {
+            organizationId = dto.getOrganizationId() != null ? dto.getOrganizationId() : 1L;
+        }
+        user.setOrganizationId(organizationId);
 
         sysUserService.save(user);
 
@@ -658,16 +669,16 @@ public class UserService {
         if (userIds == null || userIds.isEmpty()) {
             throw new BusinessException("用户ID列表不能为空");
         }
-        
+
         sysUserRoleService.remove(new LambdaQueryWrapper<SysUserRole>()
                 .in(SysUserRole::getUserId, userIds));
         log.info("Deleted role associations for {} users", userIds.size());
-        
+
         userIds.forEach(userId -> {
             refreshTokenService.deleteAllUserRefreshTokens(userId);
             log.info("Deleted refresh tokens for user {}", userId);
         });
-        
+
         sysUserService.removeByIds(userIds);
         log.info("Batch deleted {} users", userIds.size());
     }
@@ -684,14 +695,14 @@ public class UserService {
         if (userIds == null || userIds.isEmpty()) {
             throw new BusinessException("用户ID列表不能为空");
         }
-        
+
         if (roleIds == null || roleIds.isEmpty()) {
             throw new BusinessException("角色ID列表不能为空");
         }
-        
+
         sysUserRoleService.remove(new LambdaQueryWrapper<SysUserRole>()
                 .in(SysUserRole::getUserId, userIds));
-        
+
         List<SysUserRole> relations = new ArrayList<>();
         for (Long userId : userIds) {
             for (Long roleId : roleIds) {
@@ -701,9 +712,9 @@ public class UserService {
                 relations.add(relation);
             }
         }
-        
+
         sysUserRoleService.saveBatch(relations);
-        
+
         log.info("Batch assigned roles to {} users, total relations: {}", userIds.size(), relations.size());
     }
 

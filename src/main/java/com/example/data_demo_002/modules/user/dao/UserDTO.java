@@ -71,6 +71,11 @@ public class UserDTO implements Serializable {
     private List<Long> roleIds;
 
     /**
+     * 所属单位ID（可选）
+     */
+    private Long organizationId;
+
+    /**
      * 创建时使用的校验分组接口
      * 
      * 用于标识哪些校验规则仅在创建用户时生效

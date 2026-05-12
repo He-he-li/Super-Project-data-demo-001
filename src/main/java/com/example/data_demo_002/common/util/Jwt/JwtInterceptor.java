@@ -78,6 +78,11 @@ public class JwtInterceptor implements HandlerInterceptor {
 
             UserContext.setUserId(dbSysUser.getId());
             UserContext.setUsername(dbSysUser.getUsername());
+            
+            // 设置单位ID（从数据库获取）
+            if (dbSysUser.getOrganizationId() != null) {
+                UserContext.setOrganizationId(dbSysUser.getOrganizationId());
+            }
 
             if (info.isShouldRenew()) {
                 response.setHeader("Authorization-New", "Bearer " + info.getNewAccessToken());
