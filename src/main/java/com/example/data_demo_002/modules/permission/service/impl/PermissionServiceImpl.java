@@ -9,6 +9,7 @@ import com.example.data_demo_002.common.base.domain.SysUserRole;
 import com.example.data_demo_002.common.base.mapper.SysPermissionMapper;
 import com.example.data_demo_002.common.base.mapper.SysRolePermissionMapper;
 import com.example.data_demo_002.common.base.mapper.SysUserRoleMapper;
+import com.example.data_demo_002.common.constant.RoleConstants;
 import com.example.data_demo_002.common.exception.BusinessException;
 import com.example.data_demo_002.modules.permission.dao.MenuVO;
 import com.example.data_demo_002.modules.permission.dao.PermissionDTO;
@@ -49,7 +50,7 @@ public class PermissionServiceImpl implements PermissionService {
             .map(SysUserRole::getRoleId)
             .collect(Collectors.toList());
 
-        boolean isSuperAdmin = roleIds.contains(1002L);
+        boolean isSuperAdmin = roleIds.contains(RoleConstants.SUPER_ADMIN_ROLE_ID);
 
         if (isSuperAdmin) {
             List<SysPermission> allPermissions = permissionMapper.selectList(

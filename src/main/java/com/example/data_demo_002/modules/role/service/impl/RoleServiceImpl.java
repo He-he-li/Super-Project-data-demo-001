@@ -10,6 +10,7 @@ import com.example.data_demo_002.common.base.mapper.SysRoleMapper;
 import com.example.data_demo_002.common.base.mapper.SysRolePermissionMapper;
 import com.example.data_demo_002.common.base.mapper.SysUserRoleMapper;
 import com.example.data_demo_002.common.base.service.SysRoleService;
+import com.example.data_demo_002.common.constant.RoleConstants;
 import com.example.data_demo_002.common.exception.BusinessException;
 import com.example.data_demo_002.modules.role.dao.RoleDTO;
 import com.example.data_demo_002.modules.role.dao.RoleVO;
@@ -167,7 +168,7 @@ public class RoleServiceImpl implements RoleService {
             throw new BusinessException("角色不存在");
         }
 
-        if (roleId.equals(1002L)) {
+        if (roleId.equals(RoleConstants.SUPER_ADMIN_ROLE_ID)) {
             throw new BusinessException("超级管理员角色不允许删除");
         }
 

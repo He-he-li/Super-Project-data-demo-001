@@ -9,6 +9,7 @@ import com.example.data_demo_002.common.base.mapper.SysUserMapper;
 import com.example.data_demo_002.common.base.service.SysRoleService;
 import com.example.data_demo_002.common.base.service.SysUserRoleService;
 import com.example.data_demo_002.common.base.service.SysUserService;
+import com.example.data_demo_002.common.constant.RoleConstants;
 import com.example.data_demo_002.common.exception.BusinessException;
 import com.example.data_demo_002.common.util.Jwt.JwtUtil;
 import com.example.data_demo_002.common.util.Jwt.RefreshTokenService;
@@ -24,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -152,7 +154,7 @@ public class UserService {
     }
 
     /**
-     * [UM-001] 分页获取用户列表（含角色信息，支持多条件筛选）
+     * [UM-001] 分页获取用户列表（含角色信息，支持多条件筛选）- 已优化N+1查询
      * 功能：分页查询用户，支持多条件筛选
      * 入参：pageNum, pageSize, username(可选), email(可选), phone(可选), status(可选)
      * 返回：Page<UserVO>(含角色列表)
@@ -188,7 +190,38 @@ public class UserService {
         resultPage.setSize(userPage.getSize());
         resultPage.setPages(userPage.getPages());
         
-        List<UserVO> userVOList = userPage.getRecords().stream().map(user -> {
+        List<SysUser> users = userPage.getRecords();
+        if (users.isEmpty()) {
+            resultPage.setRecords(new ArrayList<>());
+            return resultPage;
+        }
+        
+        List<Long> userIds = users.stream().map(SysUser::getId).collect(Collectors.toList());
+        
+        List<SysUserRole> allRelations = sysUserRoleService.list(
+                new LambdaQueryWrapper<SysUserRole>().in(SysUserRole::getUserId, userIds)
+        );
+        
+        Map<Long, List<Long>> userRoleMap = allRelations.stream()
+                .collect(Collectors.groupingBy(
+                        SysUserRole::getUserId,
+                        Collectors.mapping(SysUserRole::getRoleId, Collectors.toList())
+                ));
+        
+        List<Long> allRoleIds = allRelations.stream()
+                .map(SysUserRole::getRoleId)
+                .distinct()
+                .collect(Collectors.toList());
+        
+        Map<Long, String> roleNameMap = new java.util.HashMap<>();
+        if (!allRoleIds.isEmpty()) {
+            List<SysRole> roles = sysRoleService.listByIds(allRoleIds);
+            roleNameMap = roles.stream()
+                    .collect(Collectors.toMap(SysRole::getId, SysRole::getRoleName));
+        }
+        
+        Map<Long, String> finalRoleNameMap = roleNameMap;
+        List<UserVO> userVOList = users.stream().map(user -> {
             UserVO vo = new UserVO();
             vo.setId(user.getId());
             vo.setUsername(user.getUsername());
@@ -198,21 +231,11 @@ public class UserService {
             vo.setCreateTime(user.getCreateTime());
             vo.setUpdateTime(user.getUpdateTime());
             
-            List<SysUserRole> relations = sysUserRoleService.list(
-                    new LambdaQueryWrapper<SysUserRole>().eq(SysUserRole::getUserId, user.getId())
-            );
-            
-            List<Long> roleIds = relations.stream()
-                    .map(SysUserRole::getRoleId)
+            List<Long> roleIds = userRoleMap.getOrDefault(user.getId(), new ArrayList<>());
+            List<String> roleNames = roleIds.stream()
+                    .map(finalRoleNameMap::get)
+                    .filter(name -> name != null)
                     .collect(Collectors.toList());
-            
-            List<String> roleNames = new ArrayList<>();
-            if (!roleIds.isEmpty()) {
-                List<SysRole> roles = sysRoleService.listByIds(roleIds);
-                roleNames = roles.stream()
-                        .map(SysRole::getRoleName)
-                        .collect(Collectors.toList());
-            }
             
             vo.setRoleIds(roleIds);
             vo.setRoleNames(roleNames);
@@ -252,7 +275,7 @@ public class UserService {
 
         List<Long> roleIds = dto.getRoleIds();
         if (roleIds == null || roleIds.isEmpty()) {
-            roleIds = List.of(1001L);
+            roleIds = List.of(RoleConstants.DEFAULT_USER_ROLE_ID);
         }
         
         List<SysUserRole> relations = roleIds.stream()
@@ -285,31 +308,7 @@ public class UserService {
      * 影响：更新sys_user表的username/email/phone/update_time
      */
     public UserVO updateUserMe(Long userId, UserDTO dto) {
-        if (dto.getUsername() != null) {
-            SysUser old = sysUserService.getOne(new LambdaQueryWrapper<SysUser>()
-                    .eq(SysUser::getUsername, dto.getUsername()));
-            if (old != null && !old.getId().equals(userId)) {
-                throw new BusinessException("用户名已存在");
-            }
-        }
-        
-        if (dto.getEmail() != null) {
-            long emailCount = sysUserService.count(new LambdaQueryWrapper<SysUser>()
-                    .eq(SysUser::getEmail, dto.getEmail())
-                    .ne(SysUser::getId, userId));
-            if (emailCount > 0) {
-                throw new BusinessException("邮箱已存在");
-            }
-        }
-        
-        if (dto.getPhone() != null) {
-            long phoneCount = sysUserService.count(new LambdaQueryWrapper<SysUser>()
-                    .eq(SysUser::getPhone, dto.getPhone())
-                    .ne(SysUser::getId, userId));
-            if (phoneCount > 0) {
-                throw new BusinessException("手机已存在");
-            }
-        }
+        validateUserUniqueness(userId, dto.getUsername(), dto.getEmail(), dto.getPhone());
         
         SysUser user = new SysUser();
         user.setId(userId);
@@ -341,37 +340,13 @@ public class UserService {
      * 返回：UserVO(更新后的用户信息)
      * 影响：更新sys_user表的username/email/phone/status/update_time
      */
-    public UserVO upDateUser(Long userId, UserDTO dto) {
+    public UserVO updateUser(Long userId, UserDTO dto) {
         SysUser user = sysUserService.getById(userId);
         if (user == null) {
             throw new BusinessException("用户不存在");
         }
         
-        if (dto.getUsername() != null) {
-            SysUser old = sysUserService.getOne(new LambdaQueryWrapper<SysUser>()
-                    .eq(SysUser::getUsername, dto.getUsername()));
-            if (old != null && !old.getId().equals(userId)) {
-                throw new BusinessException("用户名已存在");
-            }
-        }
-        
-        if (dto.getEmail() != null) {
-            long emailCount = sysUserService.count(new LambdaQueryWrapper<SysUser>()
-                    .eq(SysUser::getEmail, dto.getEmail())
-                    .ne(SysUser::getId, userId));
-            if (emailCount > 0) {
-                throw new BusinessException("邮箱已存在");
-            }
-        }
-        
-        if (dto.getPhone() != null) {
-            long phoneCount = sysUserService.count(new LambdaQueryWrapper<SysUser>()
-                    .eq(SysUser::getPhone, dto.getPhone())
-                    .ne(SysUser::getId, userId));
-            if (phoneCount > 0) {
-                throw new BusinessException("手机已存在");
-            }
-        }
+        validateUserUniqueness(userId, dto.getUsername(), dto.getEmail(), dto.getPhone());
         
         user.setUsername(dto.getUsername());
         user.setEmail(dto.getEmail());
@@ -392,6 +367,37 @@ public class UserService {
         vo.setUpdateTime(user.getUpdateTime());
         
         return vo;
+    }
+
+    /**
+     * 校验用户字段唯一性（提取公共方法）
+     */
+    private void validateUserUniqueness(Long userId, String username, String email, String phone) {
+        if (username != null) {
+            SysUser old = sysUserService.getOne(new LambdaQueryWrapper<SysUser>()
+                    .eq(SysUser::getUsername, username));
+            if (old != null && !old.getId().equals(userId)) {
+                throw new BusinessException("用户名已存在");
+            }
+        }
+        
+        if (email != null) {
+            long emailCount = sysUserService.count(new LambdaQueryWrapper<SysUser>()
+                    .eq(SysUser::getEmail, email)
+                    .ne(SysUser::getId, userId));
+            if (emailCount > 0) {
+                throw new BusinessException("邮箱已存在");
+            }
+        }
+        
+        if (phone != null) {
+            long phoneCount = sysUserService.count(new LambdaQueryWrapper<SysUser>()
+                    .eq(SysUser::getPhone, phone)
+                    .ne(SysUser::getId, userId));
+            if (phoneCount > 0) {
+                throw new BusinessException("手机已存在");
+            }
+        }
     }
 
     /**
@@ -516,7 +522,7 @@ public class UserService {
     // ==================== 【批量操作】 Batch Operations (BATCH) ====================
 
     /**
-     * [BATCH-001] 批量删除用户
+     * [BATCH-001] 批量删除用户 - 已优化批量操作
      * 功能：一次性删除多个用户
      * 入参：List<Long> userIds
      * 返回：无
@@ -528,17 +534,16 @@ public class UserService {
             throw new BusinessException("用户ID列表不能为空");
         }
         
-        for (Long userId : userIds) {
-            SysUser user = sysUserService.getById(userId);
-            if (user != null) {
-                sysUserRoleService.remove(new LambdaQueryWrapper<SysUserRole>()
-                        .eq(SysUserRole::getUserId, userId));
-                refreshTokenService.deleteAllUserRefreshTokens(userId);
-                sysUserService.removeById(userId);
-                log.info("Deleted user: {}", userId);
-            }
-        }
+        sysUserRoleService.remove(new LambdaQueryWrapper<SysUserRole>()
+                .in(SysUserRole::getUserId, userIds));
+        log.info("Deleted role associations for {} users", userIds.size());
         
+        userIds.forEach(userId -> {
+            refreshTokenService.deleteAllUserRefreshTokens(userId);
+            log.info("Deleted refresh tokens for user {}", userId);
+        });
+        
+        sysUserService.removeByIds(userIds);
         log.info("Batch deleted {} users", userIds.size());
     }
 

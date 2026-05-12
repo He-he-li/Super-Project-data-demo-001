@@ -180,7 +180,7 @@ public class UserController {
     @SecurityRequirement(name = "bearerAuth")
     @HasPermission("system:user:edit")
     public Result<UserVO> updateUser(@PathVariable Long userId, @Valid @RequestBody UserDTO dto) {
-        UserVO vo = userService.upDateUser(userId, dto);
+        UserVO vo = userService.updateUser(userId, dto);
         return Result.success(vo, "修改成功");
     }
 
