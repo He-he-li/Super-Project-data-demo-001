@@ -564,11 +564,22 @@ public class UserService {
             throw new BusinessException("角色ID列表不能为空");
         }
         
+        sysUserRoleService.remove(new LambdaQueryWrapper<SysUserRole>()
+                .in(SysUserRole::getUserId, userIds));
+        
+        List<SysUserRole> relations = new ArrayList<>();
         for (Long userId : userIds) {
-            assignRoles(userId, roleIds);
+            for (Long roleId : roleIds) {
+                SysUserRole relation = new SysUserRole();
+                relation.setUserId(userId);
+                relation.setRoleId(roleId);
+                relations.add(relation);
+            }
         }
         
-        log.info("Batch assigned roles to {} users", userIds.size());
+        sysUserRoleService.saveBatch(relations);
+        
+        log.info("Batch assigned roles to {} users, total relations: {}", userIds.size(), relations.size());
     }
 
     // ==================== 【删除操作】 Delete Operations ====================

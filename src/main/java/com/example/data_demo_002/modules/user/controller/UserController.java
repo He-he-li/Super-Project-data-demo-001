@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.example.data_demo_002.common.result.Result;
 import com.example.data_demo_002.common.util.permissionUtil.HasPermission;
 import com.example.data_demo_002.common.util.Jwt.UserContext;
+import com.example.data_demo_002.modules.user.dao.BatchAssignRolesRequest;
 import com.example.data_demo_002.modules.user.dao.UserDTO;
 import com.example.data_demo_002.modules.user.dao.UserLoginVO;
 import com.example.data_demo_002.modules.user.dao.UserVO;
@@ -304,7 +305,7 @@ public class UserController {
      * [BATCH-002] 批量分配角色
      * 功能：为多个用户分配相同的角色
      * 权限：system:user:assign
-     * 入参：List<Long> userIds, List<Long> roleIds
+     * 入参：BatchAssignRolesRequest(userIds, roleIds)
      * 返回：Result<Void>
      * 影响：批量更新sys_user_role表
      */
@@ -313,10 +314,8 @@ public class UserController {
     @PutMapping("/batch-assign-roles")
     @SecurityRequirement(name = "bearerAuth")
     @HasPermission("system:user:assign")
-    public Result<Void> batchAssignRoles(
-            @RequestBody List<Long> userIds,
-            @RequestBody List<Long> roleIds) {
-        userService.batchAssignRoles(userIds, roleIds);
+    public Result<Void> batchAssignRoles(@Valid @RequestBody BatchAssignRolesRequest request) {
+        userService.batchAssignRoles(request.getUserIds(), request.getRoleIds());
         return Result.success(null, "批量分配成功");
     }
 }

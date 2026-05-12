@@ -117,12 +117,16 @@ public class PermissionServiceImpl implements PermissionService {
             .eq(SysRolePermission::getRoleId, roleId));
 
         if (permissionIds != null && !permissionIds.isEmpty()) {
-            for (Long permissionId : permissionIds) {
-                SysRolePermission relation = new SysRolePermission();
-                relation.setRoleId(roleId);
-                relation.setPermissionId(permissionId);
-                rolePermissionMapper.insert(relation);
-            }
+            List<SysRolePermission> relations = permissionIds.stream()
+                    .map(permissionId -> {
+                        SysRolePermission relation = new SysRolePermission();
+                        relation.setRoleId(roleId);
+                        relation.setPermissionId(permissionId);
+                        return relation;
+                    })
+                    .collect(Collectors.toList());
+            
+            relations.forEach(rolePermissionMapper::insert);
         }
 
         log.info("角色 {} 权限分配完成，共 {} 个权限", roleId, permissionIds != null ? permissionIds.size() : 0);

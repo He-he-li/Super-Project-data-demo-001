@@ -63,7 +63,25 @@ public class RoleServiceImpl implements RoleService {
         resultPage.setSize(rolePage.getSize());
         resultPage.setPages(rolePage.getPages());
 
-        List<RoleVO> voList = rolePage.getRecords().stream().map(role -> {
+        List<SysRole> roles = rolePage.getRecords();
+        if (roles.isEmpty()) {
+            resultPage.setRecords(new ArrayList<>());
+            return resultPage;
+        }
+
+        List<Long> roleIds = roles.stream().map(SysRole::getId).collect(Collectors.toList());
+
+        List<SysRolePermission> allRelations = rolePermissionMapper.selectList(
+                new LambdaQueryWrapper<SysRolePermission>().in(SysRolePermission::getRoleId, roleIds)
+        );
+
+        java.util.Map<Long, List<Long>> rolePermissionMap = allRelations.stream()
+                .collect(Collectors.groupingBy(
+                        SysRolePermission::getRoleId,
+                        Collectors.mapping(SysRolePermission::getPermissionId, Collectors.toList())
+                ));
+
+        List<RoleVO> voList = roles.stream().map(role -> {
             RoleVO vo = new RoleVO();
             vo.setId(role.getId());
             vo.setRoleName(role.getRoleName());
@@ -72,7 +90,7 @@ public class RoleServiceImpl implements RoleService {
             vo.setCreateTime(role.getCreateTime());
             vo.setUpdateTime(role.getUpdateTime());
 
-            List<Long> permissionIds = getRolePermissions(role.getId());
+            List<Long> permissionIds = rolePermissionMap.getOrDefault(role.getId(), new ArrayList<>());
             vo.setPermissionIds(permissionIds);
 
             return vo;
@@ -211,12 +229,16 @@ public class RoleServiceImpl implements RoleService {
                 .eq(SysRolePermission::getRoleId, roleId));
 
         if (permissionIds != null && !permissionIds.isEmpty()) {
-            for (Long permissionId : permissionIds) {
-                SysRolePermission relation = new SysRolePermission();
-                relation.setRoleId(roleId);
-                relation.setPermissionId(permissionId);
-                rolePermissionMapper.insert(relation);
-            }
+            List<SysRolePermission> relations = permissionIds.stream()
+                    .map(permissionId -> {
+                        SysRolePermission relation = new SysRolePermission();
+                        relation.setRoleId(roleId);
+                        relation.setPermissionId(permissionId);
+                        return relation;
+                    })
+                    .collect(Collectors.toList());
+            
+            relations.forEach(rolePermissionMapper::insert);
         }
 
         log.info("角色 {} 权限分配完成，共 {} 个权限", roleId,
@@ -237,21 +259,33 @@ public class RoleServiceImpl implements RoleService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void assignUserRoles(Long userId, List<Long> roleIds) {
+        if (roleIds != null && !roleIds.isEmpty()) {
+            List<SysRole> roles = sysRoleService.listByIds(roleIds);
+            
+            if (roles.size() != roleIds.size()) {
+                throw new BusinessException("部分角色不存在");
+            }
+            
+            long deletedCount = roles.stream().filter(r -> r.getDeleted() == 1).count();
+            if (deletedCount > 0) {
+                throw new BusinessException("存在已删除的角色");
+            }
+        }
+
         userRoleMapper.delete(new LambdaQueryWrapper<SysUserRole>()
                 .eq(SysUserRole::getUserId, userId));
 
         if (roleIds != null && !roleIds.isEmpty()) {
-            for (Long roleId : roleIds) {
-                SysRole role = sysRoleService.getById(roleId);
-                if (role == null || role.getDeleted() == 1) {
-                    throw new BusinessException("角色不存在: " + roleId);
-                }
-
-                SysUserRole relation = new SysUserRole();
-                relation.setUserId(userId);
-                relation.setRoleId(roleId);
-                userRoleMapper.insert(relation);
-            }
+            List<SysUserRole> relations = roleIds.stream()
+                    .map(roleId -> {
+                        SysUserRole relation = new SysUserRole();
+                        relation.setUserId(userId);
+                        relation.setRoleId(roleId);
+                        return relation;
+                    })
+                    .collect(Collectors.toList());
+            
+            relations.forEach(userRoleMapper::insert);
         }
 
         log.info("用户 {} 角色分配完成，共 {} 个角色", userId,
